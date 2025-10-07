@@ -37,7 +37,18 @@ public class ShooterTuning extends OpMode {
             targetAngle -= 0.01;
         }
 
-        shooterSubsystem.setAngle(targetAngle);
+        if (gamepad1.a) {
+            shooterSubsystem.angleServo.setPosition(0);
+        } else if (gamepad1.b) {
+            shooterSubsystem.angleServo.setPosition(.2);
+        } else if (gamepad1.y) {
+            shooterSubsystem.angleServo.setPosition(.4);
+        } else if (gamepad1.x) {
+            shooterSubsystem.angleServo.setPosition(.6);
+        } else {
+            shooterSubsystem.setAngle(targetAngle);
+        }
+
 
 
         telemetry.addData("Target Angle", targetAngle);

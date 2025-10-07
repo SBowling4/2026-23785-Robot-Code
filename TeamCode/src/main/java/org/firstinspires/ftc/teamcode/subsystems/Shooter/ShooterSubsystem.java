@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
 
 public class ShooterSubsystem {
-    private final ServoImplEx angleServo;
+    public final ServoImplEx angleServo;
     private final Gamepad gamepad2;
     private double range;
 
@@ -83,20 +84,16 @@ public class ShooterSubsystem {
      */
     public double getAngleDegrees() {
         double servoPos = angleServo.getPosition(); // 0.0–1.0
-        return ShooterConstants.MIN_ANGLE +
-                servoPos * (ShooterConstants.MAX_ANGLE - ShooterConstants.MIN_ANGLE);
+        return servoPos * 360;
     }
 
     /**
      * Set shooter angle (direct mapping)
      */
     public void setAngle(double targetAngleDegrees) {
-        targetAngleDegrees = Range.clip(targetAngleDegrees, ShooterConstants.MIN_ANGLE, ShooterConstants.MAX_ANGLE);
+//        targetAngleDegrees = Range.clip(targetAngleDegrees, ShooterConstants.MIN_ANGLE, ShooterConstants.MAX_ANGLE);
 
-        double normalized = (targetAngleDegrees - ShooterConstants.MIN_ANGLE) /
-                (ShooterConstants.MAX_ANGLE - ShooterConstants.MIN_ANGLE);
-
-        angleServo.setPosition(normalized);
+        angleServo.setPosition(targetAngleDegrees / 360);
     }
 
 

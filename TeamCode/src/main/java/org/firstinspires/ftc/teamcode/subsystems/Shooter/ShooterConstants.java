@@ -14,5 +14,5 @@ public class ShooterConstants {
 
     public static final double POSITION_OFFSET = 0.0;
     public static final double MIN_ANGLE = 0.0;
-    public static final double MAX_ANGLE = 30.0;
+    public static final double MAX_ANGLE = 360;
 }
