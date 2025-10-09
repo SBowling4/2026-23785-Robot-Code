@@ -47,6 +47,10 @@ public class FeedForward {
         return kS * Math.signum(velocity) + kV * velocity + kA * acceleration;
     }
 
+    public double calculate(double velocity) {
+        return calculate(velocity, 0);
+    }
+
     public static double rpmToVelocity(double rpm, double wheelRadius) {
         return (rpm * 2 * Math.PI * wheelRadius) / 60.0;
     }
