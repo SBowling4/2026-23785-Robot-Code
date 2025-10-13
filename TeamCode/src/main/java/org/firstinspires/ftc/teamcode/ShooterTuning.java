@@ -1,78 +1,43 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
-@Config
-@TeleOp(name="Shooter Tuning")
+@TeleOp
 public class ShooterTuning extends OpMode {
-    FlywheelSubsystem flywheelSubsystem;
-    FeederSubsystem feederSubsystem;
+    ShooterSubsystem shooterSubsystem;
 
-    double targetVolts = 0.0;
-    double targetVelocity = 0.0;
+    double targetAngle;
 
     @Override
     public void init() {
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, telemetry);
-        flywheelSubsystem.init();
-
-        feederSubsystem = FeederSubsystem.getInstance(hardwareMap);
-
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad2);
+        shooterSubsystem.init();
     }
 
     @Override
     public void loop() {
-        flywheelSubsystem.loop();
-
-        if (gamepad1.a) {
-            targetVelocity = 50;
-        } else if (gamepad1.b) {
-            targetVelocity = 100;
-        } else if (gamepad1.x) {
-            targetVelocity = 150;
-        } else if (gamepad1.y) {
-            targetVelocity = 200;
-        } else {
-            targetVelocity = 0;
+        if (gamepad1.dpad_up) {
+            targetAngle += .25;
+        } else if (gamepad1.dpad_down) {
+            targetAngle -= .25;
         }
 
-        if (gamepad1.left_bumper) {
-            feederSubsystem.feed();
-        } else {
-            feederSubsystem.stop();
-        }
-
-        flywheelSubsystem.setVelocity(targetVelocity);
-
+        shooterSubsystem.setAngle(targetAngle);
 
         TelemetryPacket packet = new TelemetryPacket();
-//        packet.put("Velocity (RAD/SEC)", flywheelSubsystem.getVelocity());
-//        packet.put("Target Velocity", targetVelocity);
-        packet.put("Velocity Error", Math.abs(targetVelocity - flywheelSubsystem.getVelocity()));
-
+        packet.put("Angle Error", Math.abs(targetAngle - shooterSubsystem.getPosition()));
         FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
-        telemetry.addData("Velocity Error", Math.abs(targetVelocity - flywheelSubsystem.getVelocity()));
 
-
-        telemetry.addData("Velocity (RAD/SEC)", flywheelSubsystem.getVelocity());
-        telemetry.addData("Target Velocity", targetVelocity);
-        telemetry.addData("Target Volts", flywheelSubsystem.lastTargetVolts);
-
-
-        telemetry.addLine();
-
-        telemetry.addData("Robot Voltage", flywheelSubsystem.getRobotVoltage());
+        telemetry.addData("Current Angle", shooterSubsystem.getPosition());
+        telemetry.addData("Target Angle", targetAngle);
+        telemetry.addData("Raw Angle", shooterSubsystem.encoder.getRevolutions());
 
         telemetry.update();
     }

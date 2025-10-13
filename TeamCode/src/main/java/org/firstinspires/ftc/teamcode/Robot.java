@@ -48,7 +48,7 @@ public class Robot extends OpMode {
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad2);
         intakeSubsystem.init();
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad2, telemetry, gamepad1);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad2);
         shooterSubsystem.init();
 
         turretSubsystem = TurretSubsystem.getInstance(hardwareMap);
@@ -57,7 +57,7 @@ public class Robot extends OpMode {
         visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
         visionSubsystem.init();
 
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, telemetry);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap);
         flywheelSubsystem.init();
 
 

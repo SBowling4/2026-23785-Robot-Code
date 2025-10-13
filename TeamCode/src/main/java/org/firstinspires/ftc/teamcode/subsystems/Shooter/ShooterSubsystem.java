@@ -1,21 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
+import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
 
 public class ShooterSubsystem {
-    public final ServoImplEx angleServo;
+    public final CRServoImplEx servo;
+    public final Motor.Encoder encoder;
     private final Gamepad gamepad2;
+    private final PIDController pid;
     private double range;
-
-    private Telemetry telemetry;
+    private double position;
 
     // Initialize with at least 2 points for interpolation
     private final double[] calibDistances = {0.0, 100.0};
@@ -23,26 +25,40 @@ public class ShooterSubsystem {
     private final double[] angleResiduals = {0.0, 0.0};
 
 //    private final VisionSubsystem vision = VisionSubsystem.getInstance();
-    private final FlywheelSubsystem flywheelSubsystem = FlywheelSubsystem.getInstance();
-
     private static ShooterSubsystem instance;
 
-    private double targetAngle = 0;
-    private final Gamepad gamepad1;
-
-    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad2, Telemetry telemetry, Gamepad gamepad1) {
-        this.telemetry = telemetry;
+    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad2) {
         this.gamepad2 = gamepad2;
-        this.gamepad1 = gamepad1;
-        this.angleServo = hardwareMap.get(ServoImplEx.class, ShooterConstants.SERVO_NAME);
+        this.servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
+
+        encoder = FlywheelSubsystem.getInstance(hardwareMap).rightMotor.encoder;
+
+        pid = new PIDController(
+                ShooterConstants.kP,
+                ShooterConstants.kI,
+                ShooterConstants.kD
+        );
     }
 
     public void init() {
-        angleServo.getController().setServoPosition(angleServo.getPortNumber(), 0);
+        double ticksPerRev = 8192;
+        double degreesPerPulse = (360.0 * ShooterConstants.GEAR_RATIO) / ticksPerRev;
+
+        encoder.setDistancePerPulse(degreesPerPulse);
+
+        position = 0;
+        encoder.reset();
+
+        pid.setTolerance(1);
     }
 
     public void loop() {
         // Update multi-turn position tracking
+        position = getPosition();
+
+        pid.setP(ShooterConstants.kP);
+        pid.setI(ShooterConstants.kI);
+        pid.setD(ShooterConstants.kD);
 
 //        if (!vision.getYDegrees().isPresent()) return;
 //
@@ -63,9 +79,6 @@ public class ShooterSubsystem {
 
     }
 
-
-
-
     public void shoot() {
 //        if (!vision.getYDegrees().isPresent()) return;
 //
@@ -79,32 +92,13 @@ public class ShooterSubsystem {
 //        setAngle(Math.toDegrees(theta));
     }
 
-    /**
-     * Get current shooter angle in degrees (approximate)
-     */
-    public double getAngleDegrees() {
-        double servoPos = angleServo.getPosition(); // 0.0–1.0
-        return servoPos * 360;
+    public double getPosition() {
+        return encoder.getDistance();
     }
 
-    /**
-     * Set shooter angle (direct mapping)
-     */
-    public void setAngle(double targetAngleDegrees) {
-//        targetAngleDegrees = Range.clip(targetAngleDegrees, ShooterConstants.MIN_ANGLE, ShooterConstants.MAX_ANGLE);
-
-        angleServo.setPosition(targetAngleDegrees / 360);
+    public void setAngle(double targetAngle) {
+        servo.setPower(pid.calculate(position, targetAngle));
     }
-
-
-    /**
-     * Check if shooter is at target angle
-     */
-    public boolean atTargetAngle() {
-        return Math.abs(targetAngle - getAngleDegrees()) < 1.0;
-    }
-
-
 
     // === Residual interpolation helper ===
     private double interpolateResidual(double x, double[] xs, double[] ys) {
@@ -177,9 +171,9 @@ public class ShooterSubsystem {
 //        return theta + Math.toRadians(residualDegrees);
 //    }
 
-    public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2, Telemetry telemetry, Gamepad gamepad1) {
+    public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2) {
         if (instance == null) {
-            instance = new ShooterSubsystem(hardwareMap, gamepad2, telemetry, gamepad1);
+            instance = new ShooterSubsystem(hardwareMap, gamepad2);
         }
         return instance;
     }

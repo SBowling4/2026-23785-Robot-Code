@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 import com.acmerobotics.dashboard.config.Config;
 
-@Config
 public class FlywheelConstants {
     public static final String LEFT_FLYWHEEL_MOTOR_NAME = "FlywheelMotorLeft";
     public static final String RIGHT_FLYWHEEL_MOTOR_NAME = "FlywheelMotorRight";

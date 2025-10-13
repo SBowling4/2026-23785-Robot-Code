@@ -26,11 +26,9 @@ public class FlywheelSubsystem {
 
     public VoltageSensor voltageSensor;
 
-    private Telemetry telemetry;
-
     private static FlywheelSubsystem instance;
 
-    public FlywheelSubsystem(HardwareMap hardwareMap, Telemetry telemetry) {
+    public FlywheelSubsystem(HardwareMap hardwareMap) {
         leftMotor = new MotorEx(hardwareMap, FlywheelConstants.LEFT_FLYWHEEL_MOTOR_NAME);
         rightMotor = new MotorEx(hardwareMap, FlywheelConstants.RIGHT_FLYWHEEL_MOTOR_NAME);
 
@@ -38,8 +36,6 @@ public class FlywheelSubsystem {
             voltageSensor = sensor;
             break;
         }
-
-        this.telemetry = telemetry;
 
         ff = new FeedForward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
 
@@ -115,9 +111,9 @@ public class FlywheelSubsystem {
         return ff;
     }
 
-    public static FlywheelSubsystem getInstance(HardwareMap hardwareMap, Telemetry telemetry) {
+    public static FlywheelSubsystem getInstance(HardwareMap hardwareMap) {
         if (instance == null) {
-            instance = new FlywheelSubsystem(hardwareMap, telemetry);
+            instance = new FlywheelSubsystem(hardwareMap);
         }
         return instance;
     }

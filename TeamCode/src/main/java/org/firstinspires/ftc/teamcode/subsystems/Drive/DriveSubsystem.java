@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config
 public class DriveSubsystem {
 
     private static DriveSubsystem instance;

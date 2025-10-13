@@ -1,27 +1,25 @@
 package org.firstinspires.ftc.teamcode.subsystems.Intake;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-@Config
 public class IntakeSubsystem {
 
-    private static IntakeSubsystem instantce;
+    private static IntakeSubsystem instance;
 
     public static IntakeSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2) {
-        if (instantce == null) {
-            instantce = new IntakeSubsystem(hardwareMap, gamepad2);
+        if (instance == null) {
+            instance = new IntakeSubsystem(hardwareMap, gamepad2);
         }
-        return instantce;
+        return instance;
     }
 
     public static IntakeSubsystem getInstance() {
-        if (instantce == null) {
+        if (instance == null) {
             throw new IllegalStateException("IntakeSubsystem not initialized. Call getInstance(hardwareMap, gamepad2) first.");
         }
-        return instantce;
+        return instance;
     }
 
     MotorEx intakeMotor;
