@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DigitalChannelImpl;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
@@ -14,8 +17,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
 public class ShooterSubsystem {
     public final CRServoImplEx servo;
     public final Motor.Encoder encoder;
+    private final DigitalChannel limitSwitch;
     private final Gamepad gamepad2;
-    private final PIDController pid;
+    public final PIDController pid;
     private double range;
     private double position;
 
@@ -32,6 +36,8 @@ public class ShooterSubsystem {
         this.servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
 
         encoder = FlywheelSubsystem.getInstance(hardwareMap).rightMotor.encoder;
+
+        limitSwitch = hardwareMap.get(DigitalChannel.class, ShooterConstants.LIMIT_SWITCH_NAME);
 
         pid = new PIDController(
                 ShooterConstants.kP,
@@ -55,6 +61,11 @@ public class ShooterSubsystem {
     public void loop() {
         // Update multi-turn position tracking
         position = getPosition();
+
+        if (!limitSwitch.getState()) { // Active low
+            encoder.reset();
+            position = 0;
+        }
 
         pid.setP(ShooterConstants.kP);
         pid.setI(ShooterConstants.kI);
@@ -93,11 +104,20 @@ public class ShooterSubsystem {
     }
 
     public double getPosition() {
-        return encoder.getDistance();
+        int ticksPerRev = 8192;
+        double revolutions = (double) encoder.getPosition() / ticksPerRev;
+
+        return -revolutions * 360.0 * ShooterConstants.GEAR_RATIO;
+    }
+
+    public boolean getLS() {
+        return !limitSwitch.getState();
     }
 
     public void setAngle(double targetAngle) {
-        servo.setPower(pid.calculate(position, targetAngle));
+        targetAngle = Range.clip(targetAngle, ShooterConstants.MIN_ANGLE, ShooterConstants.MAX_ANGLE);
+        double power = pid.calculate(getPosition(), targetAngle);
+        servo.setPower(power);
     }
 
     // === Residual interpolation helper ===
