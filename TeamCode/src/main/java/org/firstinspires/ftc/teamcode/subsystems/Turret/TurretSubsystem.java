@@ -15,20 +15,6 @@ public class TurretSubsystem {
     // Singleton instance
     private static TurretSubsystem instance;
 
-    public static TurretSubsystem getInstance(HardwareMap hardwareMap) {
-        if (instance == null) {
-            instance = new TurretSubsystem(hardwareMap);
-        }
-        return instance;
-    }
-
-    public static TurretSubsystem getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("TurretSubsystem not initialized. Call getInstance(hardwareMap) first.");
-        }
-        return instance;
-    }
-
     private final CRServoImplEx leftTurretServo;
     private final CRServoImplEx rightTurretServo;
     private final PIDController pidController;
@@ -128,6 +114,20 @@ public class TurretSubsystem {
         power = 0.0;
         leftTurretServo.setPower(0.0);
         rightTurretServo.setPower(0.0);
+    }
+
+    public static TurretSubsystem getInstance(HardwareMap hardwareMap) {
+        if (instance == null) {
+            instance = new TurretSubsystem(hardwareMap);
+        }
+        return instance;
+    }
+
+    public static TurretSubsystem getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("TurretSubsystem not initialized. Call getInstance(hardwareMap) first.");
+        }
+        return instance;
     }
 
 }

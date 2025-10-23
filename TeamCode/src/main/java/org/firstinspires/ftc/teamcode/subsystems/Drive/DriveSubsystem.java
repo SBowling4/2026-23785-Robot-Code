@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.command.OdometrySubsystem;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
@@ -26,19 +25,17 @@ public class DriveSubsystem {
     Motor.Encoder encoderLeft, encoderRight, encoderAux;
     IMU gyro;
 
-    HolonomicOdometry holomonic;
-    OdometrySubsystem odometry;
+    HolonomicOdometry odometry;
     MecanumDrive mecanum;
 
     Telemetry telemetry;
-    Gamepad gamepad1, gamepad2;
+    Gamepad gamepad1;
 
 
-    public DriveSubsystem(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
+    public DriveSubsystem(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {
         this.telemetry = telemetry;
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
-        this.gamepad2 = gamepad2;
     }
 
     public void init() {
@@ -63,38 +60,55 @@ public class DriveSubsystem {
 
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP, //TODO: Update
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         gyro.initialize(parameters);
+
+        odometry = new HolonomicOdometry(() -> encoderLeft.getDistance(), () -> encoderRight.getDistance(),
+                () -> encoderAux.getDistance(), 17, 0);
     }
 
     public void loop(){
-        mecanum.driveRobotCentric(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x);
+        mecanum.driveFieldCentric(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.getRobotYawPitchRollAngles().getYaw());
 
-        if(gamepad2.b){
-            //holomonic.rotatePose(0);
-            gyro.resetYaw();
+        odometry.update(encoderLeft.getDistance(), encoderRight.getDistance(), encoderAux.getDistance());
+
+        if (gamepad1.y) {
+            zeroGyro();
         }
 
+        telemetry.addLine("//Odometry//");
+        telemetry.addData("X Position (in)", getPose().getX());
+        telemetry.addData("Y Position (in)", getPose().getY());
+        telemetry.addData("Heading (rad)", getPose().getHeading());
+        telemetry.addLine();
+        telemetry.addLine();
 
-        //telemetry.addLine("/// Odometry ///");
-        //telemetry.addData("Heading:", Math.toDegrees(odometry.getPose().getHeading()));
-        //telemetry.addData("x", odometry.getPose().getX());
-        //telemetry.addData("Heading (IMU):", gyro.getRobotYawPitchRollAngles().getYaw());
-        //telemetry.addData("Pose:", odometry.getPose().getX());
-        //telemetry.update();
+        telemetry.update();
     }
 
-    public static DriveSubsystem getInstance(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
+    public void zeroGyro() {
+        gyro.resetYaw();
+    }
+
+    public void resetPose() {
+        odometry.updatePose(new Pose2d());
+    }
+
+    public Pose2d getPose() {
+        return odometry.getPose();
+    }
+
+    public static DriveSubsystem getInstance(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {
         if (instance == null) {
-            instance = new DriveSubsystem(telemetry, hardwareMap, gamepad1, gamepad2);
+            instance = new DriveSubsystem(telemetry, hardwareMap, gamepad1);
         }
         return instance;
     }
 
     public DriveSubsystem getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("DriveSubsystem not initialized. Call getInstance(telemetry, hardwareMap, gamepad1, gamepad2) first.");
+            throw new IllegalStateException("DriveSubsystem not initialized. Call getInstance(telemetry, hardwareMap, gamepad1) first.");
         }
         return instance;
     }

@@ -4,10 +4,8 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DigitalChannelImpl;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -15,25 +13,33 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
 
 public class ShooterSubsystem {
-    public final CRServoImplEx servo;
-    public final Motor.Encoder encoder;
-    private final DigitalChannel limitSwitch;
-    private final Gamepad gamepad2;
-    public final PIDController pid;
+    public CRServoImplEx servo;
+    public Motor.Encoder encoder;
+    private DigitalChannel limitSwitch;
+    private final Gamepad gamepad1;
+    public PIDController pid;
     private double range;
     private double position;
+
+    private FlywheelSubsystem flywheelSubsystem = FlywheelSubsystem.getInstance();
 
     // Initialize with at least 2 points for interpolation
     private final double[] calibDistances = {0.0, 100.0};
     private final double[] velocityResiduals = {0.0, 0.0};
     private final double[] angleResiduals = {0.0, 0.0};
 
-//    private final VisionSubsystem vision = VisionSubsystem.getInstance();
+    private Telemetry telemetry;
+    private HardwareMap hardwareMap;
+
     private static ShooterSubsystem instance;
 
-    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad2) {
-        this.gamepad2 = gamepad2;
-        this.servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
+    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1) {
+        this.hardwareMap = hardwareMap;
+        this.gamepad1 = gamepad1;
+    }
+
+    public void init() {
+        servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
 
         encoder = FlywheelSubsystem.getInstance(hardwareMap).rightMotor.encoder;
 
@@ -44,9 +50,7 @@ public class ShooterSubsystem {
                 ShooterConstants.kI,
                 ShooterConstants.kD
         );
-    }
 
-    public void init() {
         double ticksPerRev = 8192;
         double degreesPerPulse = (360.0 * ShooterConstants.GEAR_RATIO) / ticksPerRev;
 
@@ -67,9 +71,9 @@ public class ShooterSubsystem {
             position = 0;
         }
 
-        pid.setP(ShooterConstants.kP);
-        pid.setI(ShooterConstants.kI);
-        pid.setD(ShooterConstants.kD);
+        if (gamepad1.left_bumper) {
+            shoot();
+        }
 
 //        if (!vision.getYDegrees().isPresent()) return;
 //
@@ -91,6 +95,8 @@ public class ShooterSubsystem {
     }
 
     public void shoot() {
+        flywheelSubsystem.setVelocity(ShooterConstants.NOMINAL_VELOCITY);
+        setAngle(ShooterConstants.NOMINAL_ANGLE);
 //        if (!vision.getYDegrees().isPresent()) return;
 //
 //        double theta = getTheta(ShooterConstants.NOMINAL_VELOCITY);

@@ -16,4 +16,7 @@ public class ShooterConstants {
     public static final double MIN_ANGLE = 0.0;
     public static final double MAX_ANGLE = 25.0;
 
+    public static final double NOMINAL_VELOCITY = 150;
+    public static final double NOMINAL_ANGLE = 12;
+
 }

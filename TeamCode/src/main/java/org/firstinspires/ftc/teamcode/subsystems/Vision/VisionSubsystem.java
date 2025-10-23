@@ -13,18 +13,16 @@ import org.firstinspires.ftc.teamcode.util.Artifact;
 import java.util.Optional;
 
 public class VisionSubsystem {
-
-    static HardwareMap hardwareMap;
     private final Limelight3A limelight;
     private LLResult result;
-
-    private final List<Integer> obeliskTags = List.of(21, 22, 23);
     private LLResultTypes.FiducialResult goodTag;
+
+    private HardwareMap hardwareMap;
 
     private static VisionSubsystem instance;
 
     public VisionSubsystem(HardwareMap hardwareMap) {
-        VisionSubsystem.hardwareMap = hardwareMap;
+        this.hardwareMap = hardwareMap;
         limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     }
 
@@ -49,32 +47,10 @@ public class VisionSubsystem {
                 goodTag = fidResult;
             }
 
-            if (obeliskTags.contains(fidResult.getFiducialId()) && !Robot.hasMotif.get()) {
-                if (fidResult.getFiducialId() == 21) {
-                    Robot.motif.put(1, Artifact.GREEN);
-                    Robot.motif.put(2, Artifact.PURPLE);
-                    Robot.motif.put(3, Artifact.PURPLE);
-
-                    Robot.hasMotif.set(true);
-                }
-
-                if (fidResult.getFiducialId() == 22) {
-                    Robot.motif.put(1, Artifact.PURPLE);
-                    Robot.motif.put(2, Artifact.GREEN);
-                    Robot.motif.put(3, Artifact.PURPLE);
-
-                    Robot.hasMotif.set(true);
-                }
-
-                if (fidResult.getFiducialId() == 23) {
-                    Robot.motif.put(1, Artifact.PURPLE);
-                    Robot.motif.put(2, Artifact.PURPLE);
-                    Robot.motif.put(3, Artifact.GREEN);
-
-                    Robot.hasMotif.set(true);
-                }
-
+            if (VisionConstants.OBELISK_TAGS.contains(fidResult.getFiducialId())) {
+                setMotif(fidResult.getFiducialId());
             }
+
         }
 
     }
@@ -91,6 +67,34 @@ public class VisionSubsystem {
         if (!result.isValid()) return Optional.empty();
 
         return Optional.of(goodTag.getTargetYDegrees());
+    }
+
+    public void setMotif(int tagId) {
+        if (Robot.hasMotif.get()) return;
+
+        if (tagId == 21) {
+            Robot.motif.put(1, Artifact.GREEN);
+            Robot.motif.put(2, Artifact.PURPLE);
+            Robot.motif.put(3, Artifact.PURPLE);
+
+            Robot.hasMotif.set(true);
+        }
+
+        if (tagId == 22) {
+            Robot.motif.put(1, Artifact.PURPLE);
+            Robot.motif.put(2, Artifact.GREEN);
+            Robot.motif.put(3, Artifact.PURPLE);
+
+            Robot.hasMotif.set(true);
+        }
+
+        if (tagId == 23) {
+            Robot.motif.put(1, Artifact.PURPLE);
+            Robot.motif.put(2, Artifact.PURPLE);
+            Robot.motif.put(3, Artifact.GREEN);
+
+            Robot.hasMotif.set(true);
+        }
     }
 
 

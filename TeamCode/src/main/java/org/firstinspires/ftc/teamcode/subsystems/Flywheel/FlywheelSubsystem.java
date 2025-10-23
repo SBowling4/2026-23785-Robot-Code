@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -13,11 +15,11 @@ import org.firstinspires.ftc.teamcode.util.FeedForward;
 
 
 public class FlywheelSubsystem {
-    public final MotorEx leftMotor;
-    public final MotorEx rightMotor;
+    public MotorEx leftMotor;
+    public MotorEx rightMotor;
 
-    private final FeedForward ff;
-    private final PIDController pid;
+    private FeedForward ff;
+    private PIDController pid;
 
     private double lastTimeNs;
     private double lastTargetRadPerSec = 0.0;
@@ -25,10 +27,15 @@ public class FlywheelSubsystem {
     public double lastTargetVolts = 0.0;
 
     public VoltageSensor voltageSensor;
-
+    private Telemetry telemetry;
+    private final HardwareMap hardwareMap;
     private static FlywheelSubsystem instance;
 
     public FlywheelSubsystem(HardwareMap hardwareMap) {
+        this.hardwareMap = hardwareMap;
+    }
+
+    public void init() {
         leftMotor = new MotorEx(hardwareMap, FlywheelConstants.LEFT_FLYWHEEL_MOTOR_NAME);
         rightMotor = new MotorEx(hardwareMap, FlywheelConstants.RIGHT_FLYWHEEL_MOTOR_NAME);
 
@@ -40,9 +47,9 @@ public class FlywheelSubsystem {
         ff = new FeedForward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
 
         pid = new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
-    }
 
-    public void init() {
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         leftMotor.resetEncoder();
         rightMotor.resetEncoder();
 
@@ -52,17 +59,20 @@ public class FlywheelSubsystem {
         leftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-
         lastTimeNs = System.nanoTime();
     }
 
     public void loop() {
-        getFf().setkS(FlywheelConstants.kS);
-        getFf().setkV(FlywheelConstants.kV);
+        telemetry.addLine("//Flywheel//");
+        telemetry.addData("Velocity (rad/s)", "%.2f", getVelocity());
+        telemetry.addData("Target Velocity (rad/s)", "%.2f", lastTargetRadPerSec);
+        telemetry.addData("Last Target Volts", "%.2f", lastTargetVolts);
+        telemetry.addLine();
+        telemetry.addLine();
 
-        pid.setP(FlywheelConstants.kP);
-        pid.setI(FlywheelConstants.kI);
-        pid.setD(FlywheelConstants.kD);
+
+        telemetry.update();
+
     }
 
     public double getVelocity() {
@@ -81,9 +91,9 @@ public class FlywheelSubsystem {
 
 
         double ffVolts = ff.calculate(targetRadPerSec);
-        double pidOutput = pid.calculate(currentRadPerSec, targetRadPerSec);
+        double pidVolts = pid.calculate(currentRadPerSec, targetRadPerSec);
 
-        double volts = ffVolts + pidOutput;
+        double volts = ffVolts + pidVolts;
         lastTargetVolts = volts;
         double power = volts / voltageSensor.getVoltage();
 

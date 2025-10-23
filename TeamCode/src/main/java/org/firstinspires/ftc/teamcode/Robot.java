@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Indexer.IndexerSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Turret.TurretSubsystem;
@@ -24,7 +23,6 @@ public class Robot extends OpMode {
 
     public static Alliance alliance = Alliance.UNKNOWN;
     DriveSubsystem driveSubsystem;
-    IndexerSubsystem indexerSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
     TurretSubsystem turretSubsystem;
@@ -39,16 +37,13 @@ public class Robot extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1, gamepad2);
+        driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
         driveSubsystem.init();
 
-        indexerSubsystem = IndexerSubsystem.getInstance(hardwareMap);
-        indexerSubsystem.init();
-
-        intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad2);
+        intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem.init();
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad2);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1);
         shooterSubsystem.init();
 
         turretSubsystem = TurretSubsystem.getInstance(hardwareMap);
@@ -66,7 +61,6 @@ public class Robot extends OpMode {
     @Override
     public void loop() {
         driveSubsystem.loop();
-        indexerSubsystem.loop();
         intakeSubsystem.loop();
         shooterSubsystem.loop();
         turretSubsystem.loop();
