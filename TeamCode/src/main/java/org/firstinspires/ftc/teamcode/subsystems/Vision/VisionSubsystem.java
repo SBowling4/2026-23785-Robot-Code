@@ -4,7 +4,6 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.sun.tools.javac.util.List;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -13,20 +12,22 @@ import org.firstinspires.ftc.teamcode.util.Artifact;
 import java.util.Optional;
 
 public class VisionSubsystem {
-    private final Limelight3A limelight;
+    private Limelight3A limelight;
     private LLResult result;
     private LLResultTypes.FiducialResult goodTag;
 
-    private HardwareMap hardwareMap;
+    private final HardwareMap hardwareMap;
 
     private static VisionSubsystem instance;
 
     public VisionSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
-        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     }
 
-    public void init() {}
+    public void init() {
+        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+
+    }
 
     public void loop() {
         int goodTagId;
