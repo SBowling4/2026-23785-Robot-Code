@@ -1,11 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 import java.util.Optional;
@@ -14,10 +18,9 @@ public class TurretSubsystem {
 
     // Singleton instance
     private static TurretSubsystem instance;
-
-    private final CRServoImplEx leftTurretServo;
-    private final CRServoImplEx rightTurretServo;
-    private final PIDController pidController;
+    private CRServoImplEx turretServo;
+    private Motor.Encoder encoder;
+    private PIDController pidController;
 
     // multi-turn tracking
     private double revolutions = 0.0;
@@ -26,10 +29,16 @@ public class TurretSubsystem {
 
     private final VisionSubsystem vision = VisionSubsystem.getInstance();
 
-    // Private constructor for singleton
+    private final HardwareMap hardwareMap;
+
     private TurretSubsystem(HardwareMap hardwareMap) {
-        leftTurretServo = hardwareMap.get(CRServoImplEx.class, "LeftTurretServo");
-        rightTurretServo = hardwareMap.get(CRServoImplEx.class, "RightTurretServo");
+        this.hardwareMap = hardwareMap;
+    }
+
+    public void init() {
+        turretServo = hardwareMap.get(CRServoImplEx.class, TurretConstants.TURRET_SERVO_NAME);
+        encoder = FlywheelSubsystem.getInstance().leftMotor.encoder;
+
         pidController = new PIDController(
                 TurretConstants.kP,
                 TurretConstants.kI,
@@ -38,9 +47,8 @@ public class TurretSubsystem {
 
         // Initialize lastRawPosition to avoid false wrap on first read
         lastRawPosition = getRawPosition();
+        encoder.reset();
     }
-
-    public void init() {}
 
     /**
      * Main loop: keep turret pointed at AprilTag.
@@ -58,12 +66,8 @@ public class TurretSubsystem {
         }
     }
 
-    /**
-     * Get the raw Axon CR position (0.0 to 1.0 per revolution).
-     */
     private double getRawPosition() {
-        ServoControllerEx controller = (ServoControllerEx) leftTurretServo.getController();
-        return controller.getServoPosition(leftTurretServo.getPortNumber());
+        return encoder.getPosition();
     }
 
     /**
@@ -103,8 +107,7 @@ public class TurretSubsystem {
         power = Range.clip(power, -1.0, 1.0);
 
         // Apply power, inverting right servo if necessary
-        leftTurretServo.setPower(power);
-        rightTurretServo.setPower(-power);
+        turretServo.setPower(power);
     }
 
     /**
@@ -112,8 +115,7 @@ public class TurretSubsystem {
      */
     public void stop() {
         power = 0.0;
-        leftTurretServo.setPower(0.0);
-        rightTurretServo.setPower(0.0);
+        turretServo.setPower(0.0);
     }
 
     public static TurretSubsystem getInstance(HardwareMap hardwareMap) {

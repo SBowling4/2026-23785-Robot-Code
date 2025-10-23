@@ -21,7 +21,7 @@ public class ShooterSubsystem {
     private double range;
     private double position;
 
-    private FlywheelSubsystem flywheelSubsystem = FlywheelSubsystem.getInstance();
+    private final FlywheelSubsystem flywheelSubsystem = FlywheelSubsystem.getInstance();
 
     // Initialize with at least 2 points for interpolation
     private final double[] calibDistances = {0.0, 100.0};
@@ -29,7 +29,7 @@ public class ShooterSubsystem {
     private final double[] angleResiduals = {0.0, 0.0};
 
     private Telemetry telemetry;
-    private HardwareMap hardwareMap;
+    private final HardwareMap hardwareMap;
 
     private static ShooterSubsystem instance;
 
@@ -66,7 +66,7 @@ public class ShooterSubsystem {
         // Update multi-turn position tracking
         position = getPosition();
 
-        if (!limitSwitch.getState()) { // Active low
+        if (getLS()) { // Active low
             encoder.reset();
             position = 0;
         }

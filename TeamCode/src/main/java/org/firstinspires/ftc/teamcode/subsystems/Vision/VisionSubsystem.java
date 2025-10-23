@@ -12,20 +12,22 @@ import org.firstinspires.ftc.teamcode.util.Artifact;
 import java.util.Optional;
 
 public class VisionSubsystem {
-    private final Limelight3A limelight;
+    private Limelight3A limelight;
     private LLResult result;
     private LLResultTypes.FiducialResult goodTag;
 
-    private HardwareMap hardwareMap;
+    private final HardwareMap hardwareMap;
 
     private static VisionSubsystem instance;
 
     public VisionSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
-        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     }
 
-    public void init() {}
+    public void init() {
+        limelight = hardwareMap.get(Limelight3A.class, VisionConstants.LIMELIGHT_NAME);
+
+    }
 
     public void loop() {
         int goodTagId;

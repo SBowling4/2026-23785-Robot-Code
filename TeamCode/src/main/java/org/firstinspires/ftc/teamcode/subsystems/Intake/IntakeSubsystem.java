@@ -1,12 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.Intake;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class IntakeSubsystem {
 
@@ -18,17 +14,13 @@ public class IntakeSubsystem {
 
     Gamepad gamepad1;
 
-    private Telemetry telemetry;
-
     public IntakeSubsystem(HardwareMap hardwareMap, Gamepad gamepad1) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
-
-        intakeMotor = new MotorEx(hardwareMap, "IntakeMotor");
     }
 
     public void init() {
-//        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        intakeMotor = new MotorEx(hardwareMap, IntakeConstants.INTAKE_MOTOR_NAME);
     }
 
     public void loop() {
@@ -37,11 +29,6 @@ public class IntakeSubsystem {
         } else {
             intakeMotor.stopMotor();
         }
-
-//        telemetry.addLine("//Intake//");
-//        telemetry.addData("Intake Pressed", gamepad1.a);
-//
-//        telemetry.update();
     }
 
     public static IntakeSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2) {
