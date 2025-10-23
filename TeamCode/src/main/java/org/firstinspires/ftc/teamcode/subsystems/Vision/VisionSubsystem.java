@@ -25,7 +25,7 @@ public class VisionSubsystem {
     }
 
     public void init() {
-        limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+        limelight = hardwareMap.get(Limelight3A.class, VisionConstants.LIMELIGHT_NAME);
 
     }
 
