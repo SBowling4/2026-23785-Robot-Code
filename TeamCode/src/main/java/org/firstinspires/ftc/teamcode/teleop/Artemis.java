@@ -4,8 +4,10 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
@@ -18,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@TeleOp(name = "Clanker", group = "Orion")
-public class Robot extends OpMode {
+@TeleOp(name = "Artemis", group = "Orion")
+public class Artemis extends OpMode {
 
     public static Alliance alliance = Alliance.UNKNOWN;
     DriveSubsystem driveSubsystem;
@@ -28,6 +30,9 @@ public class Robot extends OpMode {
     TurretSubsystem turretSubsystem;
     VisionSubsystem visionSubsystem;
     FlywheelSubsystem flywheelSubsystem;
+    FeederSubsystem feederSubsystem;
+
+    private VoltageSensor voltageSensor;
 
     public static Map<Integer, Artifact> motif = new HashMap<>();
     public static AtomicBoolean hasMotif = new AtomicBoolean(false);
@@ -43,18 +48,24 @@ public class Robot extends OpMode {
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem.init();
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1);
-        shooterSubsystem.init();
+//        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1);
+//        shooterSubsystem.init();
+//
+//        turretSubsystem = TurretSubsystem.getInstance(hardwareMap);
+//        turretSubsystem.init();
+//
+//        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
+//        visionSubsystem.init();
 
-        turretSubsystem = TurretSubsystem.getInstance(hardwareMap);
-        turretSubsystem.init();
-
-        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
-        visionSubsystem.init();
-
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
         flywheelSubsystem.init();
 
+        feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
+        feederSubsystem.init();
+
+        for (VoltageSensor vs : hardwareMap.voltageSensor) {
+            voltageSensor = vs;
+        }
 
     }
 
@@ -62,10 +73,15 @@ public class Robot extends OpMode {
     public void loop() {
         driveSubsystem.loop();
         intakeSubsystem.loop();
-        shooterSubsystem.loop();
-        turretSubsystem.loop();
-        visionSubsystem.loop();
+//        shooterSubsystem.loop();
+//        turretSubsystem.loop();
+//        visionSubsystem.loop();
         flywheelSubsystem.loop();
+        feederSubsystem.loop();
+
+        telemetry.addData("Robot Voltage", voltageSensor.getVoltage());
+
+        telemetry.update();
     }
 
 }

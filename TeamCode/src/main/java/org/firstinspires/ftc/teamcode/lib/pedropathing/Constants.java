@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveConstants;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(20);
+            .mass(40);
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
@@ -23,8 +23,8 @@ public class Constants {
             .rightRearMotorName(DriveConstants.RIGHT_BACK_MOTOR_NAME)
             .leftFrontMotorName(DriveConstants.LEFT_FRONT_MOTOR_NAME)
             .leftRearMotorName(DriveConstants.LEFT_BACK_MOTOR_NAME)
-            .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD);
 

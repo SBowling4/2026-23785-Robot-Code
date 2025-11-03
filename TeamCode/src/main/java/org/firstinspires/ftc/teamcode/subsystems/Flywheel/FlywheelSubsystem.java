@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -17,19 +18,21 @@ public class FlywheelSubsystem {
     private double lastTargetRadPerSec = 0.0;
 
     public double lastTargetVolts = 0.0;
-    private Telemetry telemetry;
+    private final Telemetry telemetry;
     private final HardwareMap hardwareMap;
+    private final Gamepad gamepad1;
     private static FlywheelSubsystem instance;
 
-    public FlywheelSubsystem(HardwareMap hardwareMap) {
+
+    public FlywheelSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
+        this.gamepad1 = gamepad1;
+        this.telemetry = telemetry;
     }
 
     public void init() {
         leftMotor = new MotorEx(hardwareMap, FlywheelConstants.LEFT_FLYWHEEL_MOTOR_NAME);
         rightMotor = new MotorEx(hardwareMap, FlywheelConstants.RIGHT_FLYWHEEL_MOTOR_NAME);
-
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         leftMotor.resetEncoder();
         rightMotor.resetEncoder();
@@ -48,16 +51,23 @@ public class FlywheelSubsystem {
     }
 
     public void loop() {
+        if (gamepad1.left_bumper){
+            rightMotor.set(1);
+            leftMotor.set(1);
+        } else if (gamepad1.a && !gamepad1.left_bumper) {
+            rightMotor.set(-1);
+            leftMotor.set(-1);
+        } else {
+            rightMotor.stopMotor();
+            leftMotor.stopMotor();
+        }
+
         telemetry.addLine("//Flywheel//");
         telemetry.addData("Velocity (rad/s)", "%.2f", getVelocity());
         telemetry.addData("Target Velocity (rad/s)", "%.2f", lastTargetRadPerSec);
         telemetry.addData("Last Target Volts", "%.2f", lastTargetVolts);
         telemetry.addLine();
         telemetry.addLine();
-
-
-        telemetry.update();
-
     }
 
     public double getVelocity() {
@@ -71,10 +81,15 @@ public class FlywheelSubsystem {
         leftMotor.setVelocity(targetRadPerSec, AngleUnit.RADIANS);
     }
 
+    public void setPower(double power) {
+        rightMotor.set(power);
+        leftMotor.set(power);
+    }
 
-    public static FlywheelSubsystem getInstance(HardwareMap hardwareMap) {
+
+    public static FlywheelSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
         if (instance == null) {
-            instance = new FlywheelSubsystem(hardwareMap);
+            instance = new FlywheelSubsystem(hardwareMap, gamepad1, telemetry);
         }
         return instance;
     }

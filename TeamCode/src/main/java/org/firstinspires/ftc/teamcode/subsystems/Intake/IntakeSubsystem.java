@@ -26,8 +26,10 @@ public class IntakeSubsystem {
     public void loop() {
         if (gamepad1.a) {
             intakeMotor.set(1);
+        } else if (gamepad1.y ){
+            intakeMotor.set(-1);
         } else {
-            intakeMotor.stopMotor();
+            intakeMotor.set(0);
         }
     }
 

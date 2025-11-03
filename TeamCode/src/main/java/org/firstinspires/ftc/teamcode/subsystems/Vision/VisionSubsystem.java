@@ -1,14 +1,19 @@
 package org.firstinspires.ftc.teamcode.subsystems.Vision;
 
+import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.teleop.Robot;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.teleop.Artemis;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Artifact;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class VisionSubsystem {
@@ -19,6 +24,8 @@ public class VisionSubsystem {
     private final HardwareMap hardwareMap;
 
     private static VisionSubsystem instance;
+
+    private Pose2d visionBotPose;
 
     public VisionSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -32,15 +39,17 @@ public class VisionSubsystem {
     public void loop() {
         int goodTagId;
 
-        if (Robot.alliance == Alliance.BLUE) {
+        if (Artemis.alliance == Alliance.BLUE) {
             goodTagId = 20;
-        } else if (Robot.alliance == Alliance.RED) {
+        } else if (Artemis.alliance == Alliance.RED) {
             goodTagId = 19;
         } else {
             goodTagId = -1;
         }
 
         result = limelight.getLatestResult();
+
+        LLResult poseResult = result;
 
         for (LLResultTypes.FiducialResult fidResult : result.getFiducialResults()) {
 
@@ -49,10 +58,17 @@ public class VisionSubsystem {
             }
 
             if (VisionConstants.OBELISK_TAGS.contains(fidResult.getFiducialId())) {
+                poseResult.getFiducialResults().remove(fidResult);
                 setMotif(fidResult.getFiducialId());
+            } else {
+                poseResult.getFiducialResults().add(fidResult);
             }
 
         }
+
+        Pose3D measuredPose = poseResult.getBotpose();
+
+        visionBotPose = new Pose2d(measuredPose.getPosition().x, measuredPose.getPosition().y, new Rotation2d(measuredPose.getOrientation().getYaw()));
 
     }
 
@@ -71,31 +87,35 @@ public class VisionSubsystem {
     }
 
     public void setMotif(int tagId) {
-        if (Robot.hasMotif.get()) return;
+        if (Artemis.hasMotif.get()) return;
 
         if (tagId == 21) {
-            Robot.motif.put(1, Artifact.GREEN);
-            Robot.motif.put(2, Artifact.PURPLE);
-            Robot.motif.put(3, Artifact.PURPLE);
+            Artemis.motif.put(1, Artifact.GREEN);
+            Artemis.motif.put(2, Artifact.PURPLE);
+            Artemis.motif.put(3, Artifact.PURPLE);
 
-            Robot.hasMotif.set(true);
+            Artemis.hasMotif.set(true);
         }
 
         if (tagId == 22) {
-            Robot.motif.put(1, Artifact.PURPLE);
-            Robot.motif.put(2, Artifact.GREEN);
-            Robot.motif.put(3, Artifact.PURPLE);
+            Artemis.motif.put(1, Artifact.PURPLE);
+            Artemis.motif.put(2, Artifact.GREEN);
+            Artemis.motif.put(3, Artifact.PURPLE);
 
-            Robot.hasMotif.set(true);
+            Artemis.hasMotif.set(true);
         }
 
         if (tagId == 23) {
-            Robot.motif.put(1, Artifact.PURPLE);
-            Robot.motif.put(2, Artifact.PURPLE);
-            Robot.motif.put(3, Artifact.GREEN);
+            Artemis.motif.put(1, Artifact.PURPLE);
+            Artemis.motif.put(2, Artifact.PURPLE);
+            Artemis.motif.put(3, Artifact.GREEN);
 
-            Robot.hasMotif.set(true);
+            Artemis.hasMotif.set(true);
         }
+    }
+
+    public Pose2d getVisionBotPose() {
+        return visionBotPose;
     }
 
 
