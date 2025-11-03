@@ -21,27 +21,28 @@ public class ShooterSubsystem {
     private double range;
     private double position;
 
-    private final FlywheelSubsystem flywheelSubsystem = FlywheelSubsystem.getInstance();
+    private FlywheelSubsystem flywheelSubsystem;
 
     // Initialize with at least 2 points for interpolation
     private final double[] calibDistances = {0.0, 100.0};
     private final double[] velocityResiduals = {0.0, 0.0};
     private final double[] angleResiduals = {0.0, 0.0};
 
-    private Telemetry telemetry;
+    private final Telemetry telemetry;
     private final HardwareMap hardwareMap;
 
     private static ShooterSubsystem instance;
 
-    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1) {
+    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
+        this.telemetry = telemetry;
     }
 
     public void init() {
         servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
 
-        encoder = FlywheelSubsystem.getInstance(hardwareMap).rightMotor.encoder;
+        encoder = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry).rightMotor.encoder;
 
         limitSwitch = hardwareMap.get(DigitalChannel.class, ShooterConstants.LIMIT_SWITCH_NAME);
 
@@ -60,6 +61,8 @@ public class ShooterSubsystem {
         encoder.reset();
 
         pid.setTolerance(1);
+
+        flywheelSubsystem = FlywheelSubsystem.getInstance();
     }
 
     public void loop() {
@@ -71,9 +74,10 @@ public class ShooterSubsystem {
             position = 0;
         }
 
-        if (gamepad1.left_bumper) {
-            shoot();
-        }
+
+//        if (gamepad1.left_bumper) {
+//            shoot();
+//        }
 
 //        if (!vision.getYDegrees().isPresent()) return;
 //
@@ -197,9 +201,9 @@ public class ShooterSubsystem {
 //        return theta + Math.toRadians(residualDegrees);
 //    }
 
-    public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2) {
+    public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2, Telemetry telemetry) {
         if (instance == null) {
-            instance = new ShooterSubsystem(hardwareMap, gamepad2);
+            instance = new ShooterSubsystem(hardwareMap, gamepad2, telemetry);
         }
         return instance;
     }

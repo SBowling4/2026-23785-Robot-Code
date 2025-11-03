@@ -13,6 +13,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 public class DriveSubsystem {
 
@@ -26,10 +28,12 @@ public class DriveSubsystem {
     IMU gyro;
 
     HolonomicOdometry odometry;
-    MecanumDrive mecanum;
+    public MecanumDrive mecanum;
 
     Telemetry telemetry;
     Gamepad gamepad1;
+
+    private VisionSubsystem visionSubsystem;
 
 
     public DriveSubsystem(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {
@@ -49,6 +53,9 @@ public class DriveSubsystem {
         backLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
+        backRight.setInverted(true);
+        frontRight.setInverted(true);
+
 
         encoderLeft = frontLeft.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
         encoderRight = frontRight.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
@@ -60,31 +67,55 @@ public class DriveSubsystem {
 
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.UP, //TODO: Update
-                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+                        RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
+                        RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
         gyro.initialize(parameters);
 
         odometry = new HolonomicOdometry(() -> encoderLeft.getDistance(), () -> encoderRight.getDistance(),
                 () -> encoderAux.getDistance(), 17, 0);
+
+        mecanum = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
+
+        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
     }
 
     public void loop(){
-        mecanum.driveFieldCentric(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x, gyro.getRobotYawPitchRollAngles().getYaw());
+        double leftX = applyDeadband(-gamepad1.left_stick_x);
+        double leftY = applyDeadband(-gamepad1.left_stick_y);
+        double rightX = applyDeadband(gamepad1.right_stick_x);
+
+//        mecanum.driveFieldCentric(leftX, leftY, rightX, gyro.getRobotYawPitchRollAngles().getYaw());
+        mecanum.driveRobotCentric(leftX, leftY, rightX);
 
         odometry.update(encoderLeft.getDistance(), encoderRight.getDistance(), encoderAux.getDistance());
 
-        if (gamepad1.y) {
+        Pose2d visionPose = visionSubsystem.getVisionBotPose();
+
+        if (visionPose != null) {
+            odometry.updatePose(visionPose);
+        }
+
+        if (gamepad1.x) {
             zeroGyro();
         }
 
+    }
+
+    public double applyDeadband(double value) {
+        if (Math.abs(value) < DriveConstants.DEADBAND) {
+            return 0.0;
+        } else {
+            return value;
+        }
+    }
+
+    public void setTelemetry() {
         telemetry.addLine("//Odometry//");
         telemetry.addData("X Position (in)", getPose().getX());
         telemetry.addData("Y Position (in)", getPose().getY());
         telemetry.addData("Heading (rad)", getPose().getHeading());
         telemetry.addLine();
         telemetry.addLine();
-
-        telemetry.update();
     }
 
     public void zeroGyro() {
@@ -97,6 +128,17 @@ public class DriveSubsystem {
 
     public Pose2d getPose() {
         return odometry.getPose();
+    }
+
+    public double getDistanceTraveled() {
+        return (encoderLeft.getDistance() + encoderRight.getDistance()) / 2.0;
+    }
+
+    public void stop() {
+        frontLeft.stopMotor();
+        backLeft.stopMotor();
+        frontRight.stopMotor();
+        backRight.stopMotor();
     }
 
     public static DriveSubsystem getInstance(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {

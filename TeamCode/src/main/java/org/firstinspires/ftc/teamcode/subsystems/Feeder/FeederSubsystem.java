@@ -1,41 +1,52 @@
 package org.firstinspires.ftc.teamcode.subsystems.Feeder;
 
+import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class FeederSubsystem {
-    private CRServo leftFeederServo;
-    private CRServo rightFeederServo;
+    private MotorEx feederMotor;
     private static FeederSubsystem instance;
 
     private final HardwareMap hardwareMap;
+    private final Gamepad gamepad1;
 
-    public FeederSubsystem(HardwareMap hardwareMap) {
+    public FeederSubsystem(HardwareMap hardwareMap, Gamepad gamepad1) {
         this.hardwareMap = hardwareMap;
+        this.gamepad1 = gamepad1;
     }
 
     public void init() {
-        rightFeederServo.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFeederServo.setDirection(DcMotorSimple.Direction.FORWARD);
+        feederMotor = new MotorEx(hardwareMap, FeederConstants.FEEDER_MOTOR_NAME);
+    }
 
-        this.leftFeederServo = hardwareMap.get(CRServo.class, FeederConstants.LEFT_FEEDER_SERVO_NAME);
-        this.rightFeederServo = hardwareMap.get(CRServo.class, FeederConstants.RIGHT_FEEDER_SERVO_NAME);
+    public void loop() {
+        if (gamepad1.a) {
+            feed();
+        } else if (gamepad1.y) {
+            back();
+        } else {
+            stop();
+        }
     }
 
     public void feed() {
-        leftFeederServo.setPower(-1);
-        rightFeederServo.setPower(1);
+        feederMotor.set(1);
+    }
+
+    public void back() {
+        feederMotor.set(-1);
     }
 
     public void stop() {
-        leftFeederServo.setPower(0);
-        rightFeederServo.setPower(0);
+        feederMotor.stopMotor();
     }
 
-    public static FeederSubsystem getInstance(HardwareMap hardwareMap) {
+    public static FeederSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1) {
         if (instance == null) {
-            instance = new FeederSubsystem(hardwareMap);
+            instance = new FeederSubsystem(hardwareMap, gamepad1);
         }
         return instance;
     }
