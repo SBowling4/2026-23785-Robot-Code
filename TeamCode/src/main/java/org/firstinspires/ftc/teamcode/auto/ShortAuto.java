@@ -8,14 +8,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 
-@Autonomous(name = "KillMe")
+@Autonomous(name = "ShortAuto")
 public class ShortAuto extends OpMode {
 
     private DriveSubsystem driveSubsystem;
     private FlywheelSubsystem flywheelSubsystem;
     private FeederSubsystem feederSubsystem;
+    private ShooterSubsystem shooterSubsystem;
 
     private final ElapsedTime time = new ElapsedTime();
     private boolean isFinished = false;
@@ -29,6 +33,9 @@ public class ShortAuto extends OpMode {
 
         flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
         flywheelSubsystem.init();
+
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
+        shooterSubsystem.init();
 
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         feederSubsystem.init();
@@ -46,11 +53,14 @@ public class ShortAuto extends OpMode {
             driveSubsystem.stop();
             flywheelSubsystem.setPower(0);
             feederSubsystem.stop();
+            shooterSubsystem.setAngle(0);
             telemetry.update();
             return;
         }
 
-        flywheelSubsystem.setPower(.9);
+        flywheelSubsystem.setVelocity(FlywheelConstants.CLOSE_VELOCITY);
+        shooterSubsystem.setAngle(ShooterConstants.CLOSE_ANGLE);
+
 
         // Drive backwards for 1 second
         if (t < .85) {
@@ -60,14 +70,14 @@ public class ShortAuto extends OpMode {
         }
 
         // Feed between 1s and 3s
-        if (t > 2 && t < 6) {
+        if (t > 2 && t < 15) {
             feederSubsystem.feed();
         } else {
             feederSubsystem.stop();
         }
 
         // End after 10s
-        if (t > 10) {
+        if (t > 15) {
             isFinished = true;
         }
 

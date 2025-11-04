@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.teleop.Artemis;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Artifact;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class VisionSubsystem {

@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
-import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 
+@Configurable
 public class FlywheelConstants {
     public static final String LEFT_FLYWHEEL_MOTOR_NAME = "FlywheelMotorLeft";
     public static final String RIGHT_FLYWHEEL_MOTOR_NAME = "FlywheelMotorRight";
@@ -16,5 +17,7 @@ public class FlywheelConstants {
     public static double kV = .029;
     public static double kA = 0.0;
 
-    public static final double NOMINAL_VOLTAGE = 12.0;
+    public static double CLOSE_VELOCITY = 227.5;
+    public static double FAR_VELOCITY = 262.5;
+
 }

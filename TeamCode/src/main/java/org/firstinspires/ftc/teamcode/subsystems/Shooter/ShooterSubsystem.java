@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
 
@@ -32,6 +33,9 @@ public class ShooterSubsystem {
     private final HardwareMap hardwareMap;
 
     private static ShooterSubsystem instance;
+
+    public double tuningPos = 0;
+    public double targetPos = 0;
 
     public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
         this.hardwareMap = hardwareMap;
@@ -63,6 +67,8 @@ public class ShooterSubsystem {
         pid.setTolerance(1);
 
         flywheelSubsystem = FlywheelSubsystem.getInstance();
+
+        tuningPos = 0;
     }
 
     public void loop() {
@@ -73,6 +79,33 @@ public class ShooterSubsystem {
             encoder.reset();
             position = 0;
         }
+
+        if (Robot.tuningMode) {
+            if (gamepad1.dpad_up) {
+                tuningPos += .5;
+            } else if (gamepad1.dpad_down) {
+                tuningPos -= .5;
+            }
+
+            tuningPos = Range.clip(tuningPos, 0, 25);
+
+            setAngle(tuningPos);
+        } else {
+            if (gamepad1.left_bumper) {
+                targetPos = ShooterConstants.CLOSE_ANGLE;
+                setAngle(targetPos);
+            } else if (gamepad1.right_bumper){
+                targetPos = ShooterConstants.FAR_ANGLE;
+                setAngle(targetPos);
+            } else {
+                targetPos = 0;
+                setAngle(0);
+            }
+        }
+
+
+
+
 
 
 //        if (gamepad1.left_bumper) {

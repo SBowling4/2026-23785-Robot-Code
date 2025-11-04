@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
-import com.acmerobotics.dashboard.config.Config;
+import com.bylazar.configurables.annotations.Configurable;
 
-@Config
+@Configurable
 public class ShooterConstants {
     public static final String SERVO_NAME = "AngleServo";
     public static final String LIMIT_SWITCH_NAME = "ShooterLS";
@@ -18,5 +18,8 @@ public class ShooterConstants {
 
     public static final double NOMINAL_VELOCITY = 150;
     public static final double NOMINAL_ANGLE = 12;
+
+    public static final double FAR_ANGLE = 20.5;
+    public static final double CLOSE_ANGLE = 6;
 
 }

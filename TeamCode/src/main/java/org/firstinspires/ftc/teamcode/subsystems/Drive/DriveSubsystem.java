@@ -110,12 +110,7 @@ public class DriveSubsystem {
     }
 
     public void setTelemetry() {
-        telemetry.addLine("//Odometry//");
-        telemetry.addData("X Position (in)", getPose().getX());
-        telemetry.addData("Y Position (in)", getPose().getY());
-        telemetry.addData("Heading (rad)", getPose().getHeading());
-        telemetry.addLine();
-        telemetry.addLine();
+
     }
 
     public void zeroGyro() {

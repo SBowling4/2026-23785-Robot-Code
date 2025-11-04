@@ -2,13 +2,19 @@ package org.firstinspires.ftc.teamcode.subsystems.Feeder;
 
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class FeederSubsystem {
     private MotorEx feederMotor;
     private static FeederSubsystem instance;
+
+    private ColorRangeSensor colorSensor;
 
     private final HardwareMap hardwareMap;
     private final Gamepad gamepad1;
@@ -20,6 +26,7 @@ public class FeederSubsystem {
 
     public void init() {
         feederMotor = new MotorEx(hardwareMap, FeederConstants.FEEDER_MOTOR_NAME);
+        colorSensor = hardwareMap.get(ColorRangeSensor.class, FeederConstants.COLOR_SENSOR_NAME);
     }
 
     public void loop() {
@@ -42,6 +49,14 @@ public class FeederSubsystem {
 
     public void stop() {
         feederMotor.stopMotor();
+    }
+
+    public boolean hasPiece() {
+        return getDistance() < .5;
+    }
+
+    public double getDistance() {
+        return colorSensor.getDistance(DistanceUnit.INCH);
     }
 
     public static FeederSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1) {
