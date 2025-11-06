@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
@@ -21,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @TeleOp(name = "Artemis", group = "Orion")
 public class Artemis extends OpMode {
-    public static Alliance alliance = Alliance.UNKNOWN;
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
@@ -30,8 +32,8 @@ public class Artemis extends OpMode {
     FlywheelSubsystem flywheelSubsystem;
     FeederSubsystem feederSubsystem;
 
-    public static Map<Integer, Artifact> motif = new HashMap<>();
-    public static AtomicBoolean hasMotif = new AtomicBoolean(false);
+    private boolean lastUpState = false;
+    private boolean lastDownState = false;
 
 
     @Override
@@ -44,10 +46,10 @@ public class Artemis extends OpMode {
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem.init();
 
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         flywheelSubsystem.init();
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         shooterSubsystem.init();
 
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
@@ -63,24 +65,51 @@ public class Artemis extends OpMode {
         flywheelSubsystem.loop();
         feederSubsystem.loop();
 
+        boolean currentUpState = gamepad1.dpad_up;
+        boolean currentDownState = gamepad1.dpad_down;
+
+        if (currentUpState && !lastUpState) {
+            Robot.advanceState();
+        }
+
+        if (currentDownState && !lastDownState) {
+            Robot.reverseState();
+        }
+
+        lastUpState = currentUpState;
+        lastDownState = currentDownState;
+
+        if (gamepad1.left_bumper) {
+            flywheelSubsystem.setVelocity(Robot.shooterState.velocity);
+            shooterSubsystem.setAngle(Robot.shooterState.angle);
+        } else {
+            flywheelSubsystem.stop();
+            shooterSubsystem.setAngle(0);
+        }
+
+
+
         telemetry.addLine("//Shooter//");
+        telemetry.addData("Shooter State", Robot.shooterState.toString());
+        telemetry.addLine();
+
 //        telemetry.addData("Tuning Target Angle", shooterSubsystem.tuningPos);
         telemetry.addData("Target Angle", shooterSubsystem.targetPos);
         telemetry.addData("Current Angle", shooterSubsystem.getPosition());
         telemetry.addLine();
 
-        telemetry.addLine("//Flywheel//");
         telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());
         telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
 //        telemetry.addData("Tuning Flywheel Target", flywheelSubsystem.tuningVelocity);
         telemetry.addData("Flywheel Volts", flywheelSubsystem.lastTargetVolts);
         telemetry.addLine();
 
-        telemetry.addLine("//Odometry//");
-        telemetry.addData("X Position (in)", driveSubsystem.getPose().getX());
-        telemetry.addData("Y Position (in)", driveSubsystem.getPose().getY());
-        telemetry.addData("Heading (rad)", driveSubsystem.getPose().getHeading());
-        telemetry.addLine();
+
+
+        telemetry.addLine("//Vision//");
+        telemetry.addData("X", visionSubsystem.getXDegrees().isPresent() ? visionSubsystem.getXDegrees() : -1);
+        telemetry.addData("Y", visionSubsystem.getYDegrees().isPresent() ? visionSubsystem.getYDegrees() : -1);
+
 
 
         telemetry.update();

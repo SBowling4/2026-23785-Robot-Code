@@ -49,14 +49,14 @@ public class BackAuto extends OpMode {
         driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
         driveSubsystem.init();
 
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         flywheelSubsystem.init();
 
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         feederSubsystem.init();
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
-        shooterSubsystem.init();
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+
 
         stateTimer.reset();
     }

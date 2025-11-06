@@ -30,16 +30,16 @@ public class FlywheelSubsystem {
 
     private final HardwareMap hardwareMap;
     private final Gamepad gamepad1;
-    private final Telemetry telemetry;
+    private final Gamepad gamepad2;
 
     public double tuningVelocity = 0.0;
 
     private static FlywheelSubsystem instance;
 
-    public FlywheelSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
+    public FlywheelSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
-        this.telemetry = telemetry;
+        this.gamepad2 = gamepad2;
     }
 
     public void init() {
@@ -58,8 +58,8 @@ public class FlywheelSubsystem {
         leftMotor.resetEncoder();
         rightMotor.resetEncoder();
 
-        leftMotor.setInverted(true);
-        rightMotor.setInverted(false);
+        leftMotor.setInverted(false);
+        rightMotor.setInverted(true);
 
         leftMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rightMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -79,12 +79,12 @@ public class FlywheelSubsystem {
 
             setVelocity(tuningVelocity);
         } else {
-            if (gamepad1.left_bumper) {
+            if (gamepad2.a) {
                 setVelocity(FlywheelConstants.CLOSE_VELOCITY);
-            } else if (gamepad1.right_bumper) {
+            } else if (gamepad2.b) {
+                setVelocity(FlywheelConstants.MID_VELOCITY);
+            } else if (gamepad2.x) {
                 setVelocity(FlywheelConstants.FAR_VELOCITY);
-            } else {
-                stop();
             }
         }
 
@@ -110,7 +110,7 @@ public class FlywheelSubsystem {
     }
 
     public double getVelocity() {
-        return (leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
+        return -(leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
     public void setVelocity(double targetRadPerSec) {
@@ -154,9 +154,9 @@ public class FlywheelSubsystem {
     }
 
 
-    public static FlywheelSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
+    public static FlywheelSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         if (instance == null) {
-            instance = new FlywheelSubsystem(hardwareMap, gamepad1, telemetry);
+            instance = new FlywheelSubsystem(hardwareMap, gamepad1, gamepad2);
         }
         return instance;
     }

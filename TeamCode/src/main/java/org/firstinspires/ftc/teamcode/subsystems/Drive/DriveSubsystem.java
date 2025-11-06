@@ -61,8 +61,6 @@ public class DriveSubsystem {
         encoderRight = frontRight.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
         encoderAux = backLeft.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
         gyro = hardwareMap.get(IMU.class, "imu");
 
         IMU.Parameters parameters = new IMU.Parameters(
@@ -89,11 +87,6 @@ public class DriveSubsystem {
 
         odometry.update(encoderLeft.getDistance(), encoderRight.getDistance(), encoderAux.getDistance());
 
-        Pose2d visionPose = visionSubsystem.getVisionBotPose();
-
-        if (visionPose != null) {
-            odometry.updatePose(visionPose);
-        }
 
         if (gamepad1.x) {
             zeroGyro();

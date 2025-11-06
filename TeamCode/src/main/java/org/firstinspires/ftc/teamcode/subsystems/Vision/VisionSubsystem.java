@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.teleop.Artemis;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Artifact;
+import org.firstinspires.ftc.teamcode.Robot;
 
 import java.util.Optional;
 
@@ -21,9 +22,9 @@ public class VisionSubsystem {
 
     private final HardwareMap hardwareMap;
 
-    private static VisionSubsystem instance;
+    private boolean hasTag = false;
 
-    private Pose2d visionBotPose;
+    private static VisionSubsystem instance;
 
     public VisionSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -32,23 +33,24 @@ public class VisionSubsystem {
     public void init() {
         limelight = hardwareMap.get(Limelight3A.class, VisionConstants.LIMELIGHT_NAME);
 
+        limelight.pipelineSwitch(0);
+
+        limelight.start();
     }
 
     public void loop() {
         int goodTagId;
 
-        if (Artemis.alliance == Alliance.BLUE) {
+        if (Robot.alliance == Alliance.BLUE) {
             goodTagId = 20;
-        } else if (Artemis.alliance == Alliance.RED) {
+        } else if (Robot.alliance == Alliance.RED) {
             goodTagId = 19;
         } else {
             goodTagId = -1;
         }
 
         result = limelight.getLatestResult();
-
-        LLResult poseResult = result;
-
+        
         for (LLResultTypes.FiducialResult fidResult : result.getFiducialResults()) {
 
             if (fidResult.getFiducialId() == goodTagId) {
@@ -56,22 +58,23 @@ public class VisionSubsystem {
             }
 
             if (VisionConstants.OBELISK_TAGS.contains(fidResult.getFiducialId())) {
-                poseResult.getFiducialResults().remove(fidResult);
                 setMotif(fidResult.getFiducialId());
-            } else {
-                poseResult.getFiducialResults().add(fidResult);
             }
 
         }
 
-        Pose3D measuredPose = poseResult.getBotpose();
+        try {
+            goodTag.getTargetXDegrees();
+            hasTag = true;
+        } catch (NullPointerException e) {
+            hasTag = false;
+        }
 
-        visionBotPose = new Pose2d(measuredPose.getPosition().x, measuredPose.getPosition().y, new Rotation2d(measuredPose.getOrientation().getYaw()));
 
     }
 
     public Optional<Double> getXDegrees() {
-        if (!result.isValid()) {
+        if (!result.isValid() || !hasTag) {
             return Optional.empty();
         }
 
@@ -79,41 +82,37 @@ public class VisionSubsystem {
     }
 
     public Optional<Double> getYDegrees() {
-        if (!result.isValid()) return Optional.empty();
+        if (!result.isValid() || !hasTag) return Optional.empty();
 
         return Optional.of(goodTag.getTargetYDegrees());
     }
 
     public void setMotif(int tagId) {
-        if (Artemis.hasMotif.get()) return;
+        if (Robot.hasMotif.get()) return;
 
         if (tagId == 21) {
-            Artemis.motif.put(1, Artifact.GREEN);
-            Artemis.motif.put(2, Artifact.PURPLE);
-            Artemis.motif.put(3, Artifact.PURPLE);
+            Robot.motif.put(1, Artifact.GREEN);
+            Robot.motif.put(2, Artifact.PURPLE);
+            Robot.motif.put(3, Artifact.PURPLE);
 
-            Artemis.hasMotif.set(true);
+            Robot.hasMotif.set(true);
         }
 
         if (tagId == 22) {
-            Artemis.motif.put(1, Artifact.PURPLE);
-            Artemis.motif.put(2, Artifact.GREEN);
-            Artemis.motif.put(3, Artifact.PURPLE);
+            Robot.motif.put(1, Artifact.PURPLE);
+            Robot.motif.put(2, Artifact.GREEN);
+            Robot.motif.put(3, Artifact.PURPLE);
 
-            Artemis.hasMotif.set(true);
+            Robot.hasMotif.set(true);
         }
 
         if (tagId == 23) {
-            Artemis.motif.put(1, Artifact.PURPLE);
-            Artemis.motif.put(2, Artifact.PURPLE);
-            Artemis.motif.put(3, Artifact.GREEN);
+            Robot.motif.put(1, Artifact.PURPLE);
+            Robot.motif.put(2, Artifact.PURPLE);
+            Robot.motif.put(3, Artifact.GREEN);
 
-            Artemis.hasMotif.set(true);
+            Robot.hasMotif.set(true);
         }
-    }
-
-    public Pose2d getVisionBotPose() {
-        return visionBotPose;
     }
 
 

@@ -31,10 +31,10 @@ public class ShortAuto extends OpMode {
         driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
         driveSubsystem.init();
 
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         flywheelSubsystem.init();
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, telemetry);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         shooterSubsystem.init();
 
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);

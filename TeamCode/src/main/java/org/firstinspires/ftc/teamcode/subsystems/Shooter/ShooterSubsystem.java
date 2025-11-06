@@ -10,43 +10,46 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 public class ShooterSubsystem {
     public CRServoImplEx servo;
     public Motor.Encoder encoder;
     private DigitalChannel limitSwitch;
-    private final Gamepad gamepad1;
     public PIDController pid;
     private double range;
     private double position;
 
     private FlywheelSubsystem flywheelSubsystem;
+    private VisionSubsystem vision;
 
     // Initialize with at least 2 points for interpolation
     private final double[] calibDistances = {0.0, 100.0};
     private final double[] velocityResiduals = {0.0, 0.0};
     private final double[] angleResiduals = {0.0, 0.0};
 
-    private final Telemetry telemetry;
     private final HardwareMap hardwareMap;
+    private final Gamepad gamepad1;
+    private final Gamepad gamepad2;
 
     private static ShooterSubsystem instance;
 
     public double tuningPos = 0;
     public double targetPos = 0;
 
-    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Telemetry telemetry) {
+    public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
-        this.telemetry = telemetry;
+        this.gamepad2 = gamepad2;
     }
 
     public void init() {
         servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
 
-        encoder = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, telemetry).rightMotor.encoder;
+        encoder = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2).rightMotor.encoder;
 
         limitSwitch = hardwareMap.get(DigitalChannel.class, ShooterConstants.LIMIT_SWITCH_NAME);
 
@@ -67,6 +70,7 @@ public class ShooterSubsystem {
         pid.setTolerance(1);
 
         flywheelSubsystem = FlywheelSubsystem.getInstance();
+        vision = VisionSubsystem.getInstance();
 
         tuningPos = 0;
     }
@@ -91,66 +95,49 @@ public class ShooterSubsystem {
 
             setAngle(tuningPos);
         } else {
-            if (gamepad1.left_bumper) {
-                targetPos = ShooterConstants.CLOSE_ANGLE;
-                setAngle(targetPos);
-            } else if (gamepad1.right_bumper){
-                targetPos = ShooterConstants.FAR_ANGLE;
-                setAngle(targetPos);
-            } else {
-                targetPos = 0;
-                setAngle(0);
-            }
+
         }
 
 
+        if (!vision.getYDegrees().isPresent()) return;
 
+        double yDegrees = vision.getYDegrees().get();
+        double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
+        double totalAngleRadians = Math.toRadians(totalAngleDegrees);
 
+        double heightDiff = ShooterConstants.GOAL_HEIGHT - ShooterConstants.SHOOTER_HEIGHT;
 
+//         Protect against division by zero or negative tan
+        if (Math.tan(totalAngleRadians) <= 0) return;
 
-//        if (gamepad1.left_bumper) {
-//            shoot();
-//        }
+        range = heightDiff / Math.tan(totalAngleRadians);
 
-//        if (!vision.getYDegrees().isPresent()) return;
-//
-//        double yDegrees = vision.getYDegrees().get();
-//        double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
-//        double totalAngleRadians = Math.toRadians(totalAngleDegrees);
-
-//        double heightDiff = ShooterConstants.GOAL_HEIGHT - VisionConstants.CAM_HEIGHT;
-
-        // Protect against division by zero or negative tan
-//        if (Math.tan(totalAngleRadians) <= 0) return;
-//
-//        range = heightDiff / Math.tan(totalAngleRadians);
-
-//        if (gamepad2.left_bumper) {
-//            shoot();
-//        }
+        if (gamepad2.left_bumper) {
+            shoot();
+        }
 
     }
 
     public void shoot() {
-        flywheelSubsystem.setVelocity(ShooterConstants.NOMINAL_VELOCITY);
-        setAngle(ShooterConstants.NOMINAL_ANGLE);
-//        if (!vision.getYDegrees().isPresent()) return;
-//
-//        double theta = getTheta(ShooterConstants.NOMINAL_VELOCITY);
-//        if (theta < 0) return;
-//
-//        double velocity = getVelocity(theta);
-//        if (velocity < 0) return;
-//
-//        flywheelSubsystem.setVelocity(velocity);
-//        setAngle(Math.toDegrees(theta));
+        if (!vision.getYDegrees().isPresent()) return;
+
+        double theta = getTheta(ShooterConstants.NOMINAL_VELOCITY);
+        if (theta < 0) return;
+
+        double velocity = getVelocity(theta);
+        if (velocity < 0) return;
+
+        double angularVelocity = velocity / FlywheelConstants.FLYWHEEL_RADIUS;
+
+        flywheelSubsystem.setVelocity(angularVelocity);
+        setAngle(Math.toDegrees(theta));
     }
 
     public double getPosition() {
         int ticksPerRev = 8192;
         double revolutions = (double) encoder.getPosition() / ticksPerRev;
 
-        return -revolutions * 360.0 * ShooterConstants.GEAR_RATIO;
+        return revolutions * 360.0 * ShooterConstants.GEAR_RATIO;
     }
 
     public boolean getLS() {
@@ -182,7 +169,7 @@ public class ShooterSubsystem {
     private double getVelocity(double theta) {
         // FIXED: Corrected projectile motion formula
         // v² = (g * r²) / (2 * cos²(θ) * (r*tan(θ) - Δh))
-        double heightDiff = ShooterConstants.GOAL_HEIGHT - VisionConstants.CAM_HEIGHT;
+        double heightDiff = ShooterConstants.GOAL_HEIGHT - ShooterConstants.SHOOTER_HEIGHT;
 
         double numerator = 9.81 * Math.pow(range, 2);
         double denominator = 2 * Math.pow(Math.cos(theta), 2) *
@@ -200,43 +187,43 @@ public class ShooterSubsystem {
         return v + residual;
     }
 
-    // === Theta prediction with additive correction ===
-//    private double getTheta(double velocity) {
-////        if (!vision.getYDegrees().isPresent()) return -1.0;
-////
-////        // FIXED: Convert to radians and use tan
-////        double yDegrees = vision.getYDegrees().get();
-////        double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
-////        double totalAngleRadians = Math.toRadians(totalAngleDegrees);
-//
-//        double heightDiff = ShooterConstants.GOAL_HEIGHT - VisionConstants.CAM_HEIGHT;
-////        double calculatedRange = heightDiff / Math.tan(totalAngleRadians);
-//
-//        // Quadratic formula: A*tan²(θ) + B*tan(θ) + C = 0
-//        double g = 9.81;
-//        double A = -0.5 * g * Math.pow(calculatedRange, 2) / Math.pow(velocity, 2);
-//        double B = calculatedRange;
-//        double C = A - heightDiff;
-//
-//        double discriminant = Math.pow(B, 2) - 4 * A * C;
-//        if (discriminant < 0) return -1.0;
-//
-//        double sqrtDisc = Math.sqrt(discriminant);
-//        double tanTheta1 = (-B + sqrtDisc) / (2 * A);
-//        double tanTheta2 = (-B - sqrtDisc) / (2 * A);
-//
-//        // Choose the higher angle (more arc) for typical shooting
-//        double tanTheta = Math.max(tanTheta1, tanTheta2);
-//        double theta = Math.atan(tanTheta);
-//
-//        // Apply additive residual correction
-//        double residualDegrees = interpolateResidual(calculatedRange, calibDistances, angleResiduals);
-//        return theta + Math.toRadians(residualDegrees);
-//    }
+//     === Theta prediction with additive correction ===
+    private double getTheta(double velocity) {
+        if (!vision.getYDegrees().isPresent()) return -1.0;
 
-    public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2, Telemetry telemetry) {
+        // FIXED: Convert to radians and use tan
+        double yDegrees = vision.getYDegrees().get();
+        double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
+        double totalAngleRadians = Math.toRadians(totalAngleDegrees);
+
+        double heightDiff = ShooterConstants.GOAL_HEIGHT - ShooterConstants.SHOOTER_HEIGHT;
+        double calculatedRange = heightDiff / Math.tan(totalAngleRadians);
+
+        // Quadratic formula: A*tan²(θ) + B*tan(θ) + C = 0
+        double g = 9.81;
+        double A = -0.5 * g * Math.pow(calculatedRange, 2) / Math.pow(velocity, 2);
+        double B = calculatedRange;
+        double C = A - heightDiff;
+
+        double discriminant = Math.pow(B, 2) - 4 * A * C;
+        if (discriminant < 0) return -1.0;
+
+        double sqrtDisc = Math.sqrt(discriminant);
+        double tanTheta1 = (-B + sqrtDisc) / (2 * A);
+        double tanTheta2 = (-B - sqrtDisc) / (2 * A);
+
+        // Choose the higher angle (more arc) for typical shooting
+        double tanTheta = Math.max(tanTheta1, tanTheta2);
+        double theta = Math.atan(tanTheta);
+
+        // Apply additive residual correction
+        double residualDegrees = interpolateResidual(calculatedRange, calibDistances, angleResiduals);
+        return theta + Math.toRadians(residualDegrees);
+    }
+
+    public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         if (instance == null) {
-            instance = new ShooterSubsystem(hardwareMap, gamepad2, telemetry);
+            instance = new ShooterSubsystem(hardwareMap, gamepad1, gamepad2);
         }
         return instance;
     }
