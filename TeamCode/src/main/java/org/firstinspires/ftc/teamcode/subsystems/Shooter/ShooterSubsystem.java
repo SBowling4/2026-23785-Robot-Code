@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
@@ -99,9 +98,9 @@ public class ShooterSubsystem {
         }
 
 
-        if (!vision.getYDegrees().isPresent()) return;
+        if (!vision.getVerticalAngle().isPresent()) return;
 
-        double yDegrees = vision.getYDegrees().get();
+        double yDegrees = vision.getVerticalAngle().get();
         double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
         double totalAngleRadians = Math.toRadians(totalAngleDegrees);
 
@@ -119,7 +118,7 @@ public class ShooterSubsystem {
     }
 
     public void shoot() {
-        if (!vision.getYDegrees().isPresent()) return;
+        if (!vision.getVerticalAngle().isPresent()) return;
 
         double theta = getTheta(ShooterConstants.NOMINAL_VELOCITY);
         if (theta < 0) return;
@@ -189,10 +188,10 @@ public class ShooterSubsystem {
 
 //     === Theta prediction with additive correction ===
     private double getTheta(double velocity) {
-        if (!vision.getYDegrees().isPresent()) return -1.0;
+        if (!vision.getVerticalAngle().isPresent()) return -1.0;
 
         // FIXED: Convert to radians and use tan
-        double yDegrees = vision.getYDegrees().get();
+        double yDegrees = vision.getVerticalAngle().get();
         double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
         double totalAngleRadians = Math.toRadians(totalAngleDegrees);
 

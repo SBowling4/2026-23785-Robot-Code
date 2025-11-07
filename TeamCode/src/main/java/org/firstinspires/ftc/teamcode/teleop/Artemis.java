@@ -1,33 +1,23 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.bylazar.panels.Panels;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Turret.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
-import org.firstinspires.ftc.teamcode.util.Alliance;
-import org.firstinspires.ftc.teamcode.util.Artifact;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @TeleOp(name = "Artemis", group = "Orion")
 public class Artemis extends OpMode {
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
-    TurretSubsystem turretSubsystem;
     VisionSubsystem visionSubsystem;
     FlywheelSubsystem flywheelSubsystem;
     FeederSubsystem feederSubsystem;
@@ -55,6 +45,9 @@ public class Artemis extends OpMode {
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         feederSubsystem.init();
 
+        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
+        visionSubsystem.init();
+
     }
 
     @Override
@@ -64,6 +57,7 @@ public class Artemis extends OpMode {
         shooterSubsystem.loop();
         flywheelSubsystem.loop();
         feederSubsystem.loop();
+        visionSubsystem.loop();
 
         boolean currentUpState = gamepad1.dpad_up;
         boolean currentDownState = gamepad1.dpad_down;
@@ -107,8 +101,12 @@ public class Artemis extends OpMode {
 
 
         telemetry.addLine("//Vision//");
-        telemetry.addData("X", visionSubsystem.getXDegrees().isPresent() ? visionSubsystem.getXDegrees() : -1);
-        telemetry.addData("Y", visionSubsystem.getYDegrees().isPresent() ? visionSubsystem.getYDegrees() : -1);
+        telemetry.addData("LL Valid", visionSubsystem.llValid);
+        telemetry.addData("Ta", visionSubsystem.getTa());
+        telemetry.addData("Distance", visionSubsystem.getDistance());
+//        telemetry.addData("Horz", visionSubsystem.getHorizontalAngle().isPresent() ? visionSubsystem.getHorizontalAngle().get() : -1);
+//        telemetry.addData("Vert", visionSubsystem.getVerticalAngle().isPresent() ? visionSubsystem.getVerticalAngle().get() : -1);
+//        telemetry.addData("Distance", visionSubsystem.getDistance().isPresent() ? visionSubsystem.getDistance().get() : -1);
 
 
 

@@ -1,14 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems.Vision;
 
-import com.arcrobotics.ftclib.geometry.Pose2d;
-import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.teleop.Artemis;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Artifact;
 import org.firstinspires.ftc.teamcode.Robot;
@@ -22,7 +19,7 @@ public class VisionSubsystem {
 
     private final HardwareMap hardwareMap;
 
-    private boolean hasTag = false;
+    public boolean llValid = true;
 
     private static VisionSubsystem instance;
 
@@ -39,6 +36,13 @@ public class VisionSubsystem {
     }
 
     public void loop() {
+        if (limelight == null) {
+            llValid = false;
+            return;
+        }
+
+        llValid = true;
+
         int goodTagId;
 
         if (Robot.alliance == Alliance.BLUE) {
@@ -50,8 +54,11 @@ public class VisionSubsystem {
         }
 
         result = limelight.getLatestResult();
-        
+
+        if (result == null) return;
+
         for (LLResultTypes.FiducialResult fidResult : result.getFiducialResults()) {
+
 
             if (fidResult.getFiducialId() == goodTagId) {
                 goodTag = fidResult;
@@ -63,28 +70,65 @@ public class VisionSubsystem {
 
         }
 
-        try {
-            goodTag.getTargetXDegrees();
-            hasTag = true;
-        } catch (NullPointerException e) {
-            hasTag = false;
-        }
-
-
     }
 
-    public Optional<Double> getXDegrees() {
-        if (!result.isValid() || !hasTag) {
-            return Optional.empty();
-        }
+    public Optional<Double> getTx() {
+        if (result == null) return Optional.of(-1.0);
+        if (goodTag == null) return Optional.of(-2.0);
 
         return Optional.of(goodTag.getTargetXDegrees());
     }
 
-    public Optional<Double> getYDegrees() {
-        if (!result.isValid() || !hasTag) return Optional.empty();
+    public Optional<Double> getTy() {
+        if (result == null) return Optional.of(-1.0);
+        if (goodTag == null) return Optional.of(-2.0);
 
         return Optional.of(goodTag.getTargetYDegrees());
+    }
+
+    public Optional<Double> getTa() {
+        if (result == null) return Optional.of(-1.0);
+        if (goodTag == null) return Optional.of(-2.0);
+
+        return Optional.of(goodTag.getTargetArea());
+    }
+
+    public double getDistance() {
+        double scale = 3.2;
+        Optional<Double> Ta = getTa();
+
+        if (Ta.isEmpty()) return -1;
+
+        return Math.sqrt(Ta.get() * scale);
+    }
+
+    public Optional<Double> getHorizontalAngle() {
+        if (result == null || goodTag == null) return Optional.empty();
+
+        Pose3D tagPose = goodTag.getTargetPoseRobotSpace();
+
+        double x = tagPose.getPosition().x;
+        double y = tagPose.getPosition().y;
+
+        double horizontalAngleDegrees = Math.toDegrees(Math.atan2(y, x));
+
+        return Optional.of(horizontalAngleDegrees);
+    }
+
+    public Optional<Double> getVerticalAngle() {
+        if (result == null || goodTag == null) return Optional.empty();
+
+        Pose3D tagPose = goodTag.getTargetPoseCameraSpace();
+
+        double x = tagPose.getPosition().x;
+        double y = tagPose.getPosition().y;
+        double z = tagPose.getPosition().z;
+
+        double dist = Math.sqrt(x*x + y*y);
+
+        double verticalAngleRadians = Math.toDegrees(Math.atan2(z, dist));
+
+        return Optional.of(verticalAngleRadians);
     }
 
     public void setMotif(int tagId) {

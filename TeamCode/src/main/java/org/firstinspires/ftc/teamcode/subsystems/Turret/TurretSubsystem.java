@@ -4,12 +4,9 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.ServoControllerEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 import java.util.Optional;
@@ -55,7 +52,7 @@ public class TurretSubsystem {
      * Uses vision offset as an error signal (goal = 0°).
      */
     public void loop() {
-        Optional<Double> errorOpt = vision.getXDegrees();
+        Optional<Double> errorOpt = vision.getHorizontalAngle();
 
         if (errorOpt.isPresent()) {
             double error = errorOpt.get(); // how far off-center the tag is
