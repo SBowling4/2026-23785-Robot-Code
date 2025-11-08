@@ -20,7 +20,7 @@ public class ShooterSubsystem {
     private DigitalChannel limitSwitch;
     public PIDController pid;
     private double range;
-    private double position;
+    public double position;
 
     private FlywheelSubsystem flywheelSubsystem;
     private VisionSubsystem vision;
@@ -118,18 +118,13 @@ public class ShooterSubsystem {
     }
 
     public void shoot() {
-        if (!vision.getVerticalAngle().isPresent()) return;
+        if (vision.getDistance() == -1) return;
 
-        double theta = getTheta(ShooterConstants.NOMINAL_VELOCITY);
-        if (theta < 0) return;
+        double veloFromDistance = getVelocity(vision.getDistance());
+        double angleFromDistance = getAngle(vision.getDistance());
 
-        double velocity = getVelocity(theta);
-        if (velocity < 0) return;
-
-        double angularVelocity = velocity / FlywheelConstants.FLYWHEEL_RADIUS;
-
-        flywheelSubsystem.setVelocity(angularVelocity);
-        setAngle(Math.toDegrees(theta));
+        setAngle(angleFromDistance);
+        flywheelSubsystem.setVelocity(veloFromDistance);
     }
 
     public double getPosition() {
@@ -145,12 +140,23 @@ public class ShooterSubsystem {
 
     public void setAngle(double targetAngle) {
         targetAngle = Range.clip(targetAngle, ShooterConstants.MIN_ANGLE, ShooterConstants.MAX_ANGLE);
+
+        this.targetPos = targetAngle;
+
         double power = pid.calculate(getPosition(), targetAngle);
         servo.setPower(power);
     }
 
+    public double getAngle(double distance) {
+        return 2.51 + 21.1 * distance + -2.61 * Math.pow(distance, 2) + -1.13 * Math.pow(distance, 3);
+    }
+
+    public double getVelocity(double distance) {
+        return 200 + 9.4 * distance + -58.5 * Math.pow(distance, 2) + 17 * Math.pow(distance, 3);
+    }
+
     // === Residual interpolation helper ===
-    private double interpolateResidual(double x, double[] xs, double[] ys) {
+    private double interpolate(double x, double[] xs, double[] ys) {
         if (xs.length == 0) return 0.0;
         if (x <= xs[0]) return ys[0];
         if (x >= xs[xs.length - 1]) return ys[ys.length - 1];
@@ -162,62 +168,6 @@ public class ShooterSubsystem {
             }
         }
         return 0.0;
-    }
-
-    // === Velocity prediction with additive correction ===
-    private double getVelocity(double theta) {
-        // FIXED: Corrected projectile motion formula
-        // v² = (g * r²) / (2 * cos²(θ) * (r*tan(θ) - Δh))
-        double heightDiff = ShooterConstants.GOAL_HEIGHT - ShooterConstants.SHOOTER_HEIGHT;
-
-        double numerator = 9.81 * Math.pow(range, 2);
-        double denominator = 2 * Math.pow(Math.cos(theta), 2) *
-                (range * Math.tan(theta) - heightDiff);
-
-        if (denominator <= 0) return -1.0;
-
-        double v_squared = numerator / denominator;
-        if (v_squared <= 0) return -1.0;
-
-        double v = Math.sqrt(v_squared);
-
-        // Apply additive residual correction
-        double residual = interpolateResidual(range, calibDistances, velocityResiduals);
-        return v + residual;
-    }
-
-//     === Theta prediction with additive correction ===
-    private double getTheta(double velocity) {
-        if (!vision.getVerticalAngle().isPresent()) return -1.0;
-
-        // FIXED: Convert to radians and use tan
-        double yDegrees = vision.getVerticalAngle().get();
-        double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
-        double totalAngleRadians = Math.toRadians(totalAngleDegrees);
-
-        double heightDiff = ShooterConstants.GOAL_HEIGHT - ShooterConstants.SHOOTER_HEIGHT;
-        double calculatedRange = heightDiff / Math.tan(totalAngleRadians);
-
-        // Quadratic formula: A*tan²(θ) + B*tan(θ) + C = 0
-        double g = 9.81;
-        double A = -0.5 * g * Math.pow(calculatedRange, 2) / Math.pow(velocity, 2);
-        double B = calculatedRange;
-        double C = A - heightDiff;
-
-        double discriminant = Math.pow(B, 2) - 4 * A * C;
-        if (discriminant < 0) return -1.0;
-
-        double sqrtDisc = Math.sqrt(discriminant);
-        double tanTheta1 = (-B + sqrtDisc) / (2 * A);
-        double tanTheta2 = (-B - sqrtDisc) / (2 * A);
-
-        // Choose the higher angle (more arc) for typical shooting
-        double tanTheta = Math.max(tanTheta1, tanTheta2);
-        double theta = Math.atan(tanTheta);
-
-        // Apply additive residual correction
-        double residualDegrees = interpolateResidual(calculatedRange, calibDistances, angleResiduals);
-        return theta + Math.toRadians(residualDegrees);
     }
 
     public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {

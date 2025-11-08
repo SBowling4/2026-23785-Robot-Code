@@ -99,7 +99,7 @@ public class VisionSubsystem {
 
         if (Ta.isEmpty()) return -1;
 
-        return Math.sqrt(Ta.get() * scale);
+        return Math.sqrt(Ta.get() / scale);
     }
 
     public Optional<Double> getHorizontalAngle() {

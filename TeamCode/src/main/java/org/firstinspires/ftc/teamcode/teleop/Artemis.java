@@ -73,28 +73,32 @@ public class Artemis extends OpMode {
         lastUpState = currentUpState;
         lastDownState = currentDownState;
 
-        if (gamepad1.left_bumper) {
-            flywheelSubsystem.setVelocity(Robot.shooterState.velocity);
-            shooterSubsystem.setAngle(Robot.shooterState.angle);
-        } else {
-            flywheelSubsystem.stop();
-            shooterSubsystem.setAngle(0);
+        if (!Robot.tuningMode) {
+            if (gamepad1.left_bumper) {
+                flywheelSubsystem.setVelocity(Robot.shooterState.velocity);
+                shooterSubsystem.setAngle(Robot.shooterState.angle);
+            } else {
+                flywheelSubsystem.stop();
+                shooterSubsystem.setAngle(0);
+            }
         }
 
 
 
+
+
         telemetry.addLine("//Shooter//");
-        telemetry.addData("Shooter State", Robot.shooterState.toString());
+        telemetry.addData("Shooter State", Robot.tuningMode ? "TUNING" : Robot.shooterState.toString());
         telemetry.addLine();
 
-//        telemetry.addData("Tuning Target Angle", shooterSubsystem.tuningPos);
-        telemetry.addData("Target Angle", shooterSubsystem.targetPos);
-        telemetry.addData("Current Angle", shooterSubsystem.getPosition());
+        telemetry.addData("Tuning Target Angle", shooterSubsystem.tuningPos);
+//        telemetry.addData("Target Angle", shooterSubsystem.targetPos);
+        telemetry.addData("Current Angle", shooterSubsystem.position);
         telemetry.addLine();
 
         telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());
-        telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
-//        telemetry.addData("Tuning Flywheel Target", flywheelSubsystem.tuningVelocity);
+//        telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
+        telemetry.addData("Tuning Flywheel Target", flywheelSubsystem.tuningVelocity);
         telemetry.addData("Flywheel Volts", flywheelSubsystem.lastTargetVolts);
         telemetry.addLine();
 

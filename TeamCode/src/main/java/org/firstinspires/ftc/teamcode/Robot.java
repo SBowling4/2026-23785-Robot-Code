@@ -27,7 +27,6 @@ public class Robot {
         FAR(ShooterConstants.FAR_ANGLE, FlywheelConstants.FAR_VELOCITY),
         MID(ShooterConstants.MID_ANGLE, FlywheelConstants.MID_VELOCITY),
         CLOSE(ShooterConstants.CLOSE_ANGLE, FlywheelConstants.CLOSE_VELOCITY);
-
         public final double angle;
         public final double velocity;
 

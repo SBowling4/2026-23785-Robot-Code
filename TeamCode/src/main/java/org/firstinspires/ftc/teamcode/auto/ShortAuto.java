@@ -65,19 +65,24 @@ public class ShortAuto extends OpMode {
         // Drive backwards for 1 second
         if (t < .85) {
             driveSubsystem.mecanum.driveRobotCentric(0.0, -0.5, 0);
-        } else {
+        } else if (t < 2) {
             driveSubsystem.stop();
         }
 
         // Feed between 1s and 3s
-        if (t > 2 && t < 15) {
+        if (t > 2 && t < 6) {
+            driveSubsystem.stop();
             feederSubsystem.feed();
         } else {
             feederSubsystem.stop();
         }
 
+        if (t > 6 && t < 7) {
+            driveSubsystem.mecanum.driveRobotCentric(.5, 0, 0);
+        }
+
         // End after 10s
-        if (t > 15) {
+        if (t > 8) {
             isFinished = true;
         }
 
