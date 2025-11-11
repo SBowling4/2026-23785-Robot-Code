@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.Vision;
 
+import android.graphics.Path;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -73,63 +75,61 @@ public class VisionSubsystem {
     }
 
     public Optional<Double> getTx() {
-        if (result == null) return Optional.of(-1.0);
-        if (goodTag == null) return Optional.of(-2.0);
+        if (goodTag == null) return Optional.empty();
 
         return Optional.of(goodTag.getTargetXDegrees());
     }
 
     public Optional<Double> getTy() {
-        if (result == null) return Optional.of(-1.0);
-        if (goodTag == null) return Optional.of(-2.0);
+        if (goodTag == null) return Optional.empty();
 
         return Optional.of(goodTag.getTargetYDegrees());
     }
 
     public Optional<Double> getTa() {
-        if (result == null) return Optional.of(-1.0);
-        if (goodTag == null) return Optional.of(-2.0);
+        if (goodTag == null) return Optional.empty();
 
         return Optional.of(goodTag.getTargetArea());
     }
 
-    public double getDistance() {
-        double scale = 3.2;
+    public Optional<Double> getDistance() {
+        double scale = 3.2; //TODO: Redo this using standard regression
         Optional<Double> Ta = getTa();
 
-        if (Ta.isEmpty()) return -1;
+        if (Ta.isEmpty()) return Optional.empty();
 
-        return Math.sqrt(Ta.get() / scale);
+        return Optional.of(Math.sqrt(Ta.get() / scale));
     }
 
-    public Optional<Double> getHorizontalAngle() {
-        if (result == null || goodTag == null) return Optional.empty();
-
-        Pose3D tagPose = goodTag.getTargetPoseRobotSpace();
-
-        double x = tagPose.getPosition().x;
-        double y = tagPose.getPosition().y;
-
-        double horizontalAngleDegrees = Math.toDegrees(Math.atan2(y, x));
-
-        return Optional.of(horizontalAngleDegrees);
-    }
-
-    public Optional<Double> getVerticalAngle() {
-        if (result == null || goodTag == null) return Optional.empty();
-
-        Pose3D tagPose = goodTag.getTargetPoseCameraSpace();
-
-        double x = tagPose.getPosition().x;
-        double y = tagPose.getPosition().y;
-        double z = tagPose.getPosition().z;
-
-        double dist = Math.sqrt(x*x + y*y);
-
-        double verticalAngleRadians = Math.toDegrees(Math.atan2(z, dist));
-
-        return Optional.of(verticalAngleRadians);
-    }
+    //NOTE: These do not work but there's something here
+//    public Optional<Double> getHorizontalAngle() {
+//        if (result == null || goodTag == null) return Optional.empty();
+//
+//        Pose3D tagPose = goodTag.getTargetPoseRobotSpace();
+//
+//        double x = tagPose.getPosition().x;
+//        double y = tagPose.getPosition().y;
+//
+//        double horizontalAngleDegrees = Math.toDegrees(Math.atan2(y, x));
+//
+//        return Optional.of(horizontalAngleDegrees);
+//    }
+//
+//    public Optional<Double> getVerticalAngle() {
+//        if (result == null || goodTag == null) return Optional.empty();
+//
+//        Pose3D tagPose = goodTag.getTargetPoseCameraSpace();
+//
+//        double x = tagPose.getPosition().x;
+//        double y = tagPose.getPosition().y;
+//        double z = tagPose.getPosition().z;
+//
+//        double dist = Math.sqrt(x*x + y*y);
+//
+//        double verticalAngleRadians = Math.toDegrees(Math.atan2(z, dist));
+//
+//        return Optional.of(verticalAngleRadians);
+//    }
 
     public void setMotif(int tagId) {
         if (Robot.hasMotif.get()) return;

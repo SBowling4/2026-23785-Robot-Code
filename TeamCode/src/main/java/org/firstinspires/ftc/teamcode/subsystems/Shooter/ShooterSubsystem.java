@@ -19,16 +19,10 @@ public class ShooterSubsystem {
     public Motor.Encoder encoder;
     private DigitalChannel limitSwitch;
     public PIDController pid;
-    private double range;
     public double position;
 
     private FlywheelSubsystem flywheelSubsystem;
     private VisionSubsystem vision;
-
-    // Initialize with at least 2 points for interpolation
-    private final double[] calibDistances = {0.0, 100.0};
-    private final double[] velocityResiduals = {0.0, 0.0};
-    private final double[] angleResiduals = {0.0, 0.0};
 
     private final HardwareMap hardwareMap;
     private final Gamepad gamepad1;
@@ -48,7 +42,7 @@ public class ShooterSubsystem {
     public void init() {
         servo = hardwareMap.get(CRServoImplEx.class, ShooterConstants.SERVO_NAME);
 
-        encoder = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2).rightMotor.encoder;
+        encoder = FlywheelSubsystem.getInstance().rightMotor.encoder;
 
         limitSwitch = hardwareMap.get(DigitalChannel.class, ShooterConstants.LIMIT_SWITCH_NAME);
 
@@ -93,23 +87,8 @@ public class ShooterSubsystem {
             tuningPos = Range.clip(tuningPos, 0, 25);
 
             setAngle(tuningPos);
-        } else {
-
         }
 
-
-        if (!vision.getVerticalAngle().isPresent()) return;
-
-        double yDegrees = vision.getVerticalAngle().get();
-        double totalAngleDegrees = yDegrees + VisionConstants.CAM_ANGLE;
-        double totalAngleRadians = Math.toRadians(totalAngleDegrees);
-
-        double heightDiff = ShooterConstants.GOAL_HEIGHT - ShooterConstants.SHOOTER_HEIGHT;
-
-//         Protect against division by zero or negative tan
-        if (Math.tan(totalAngleRadians) <= 0) return;
-
-        range = heightDiff / Math.tan(totalAngleRadians);
 
         if (gamepad2.left_bumper) {
             shoot();
@@ -117,16 +96,23 @@ public class ShooterSubsystem {
 
     }
 
+    /**
+     * Gets the velo using
+     */
     public void shoot() {
-        if (vision.getDistance() == -1) return;
+        if (vision.getDistance().isEmpty()) return;
 
-        double veloFromDistance = getVelocity(vision.getDistance());
-        double angleFromDistance = getAngle(vision.getDistance());
+        double velocityFromDistance = flywheelSubsystem.getVelocity(vision.getDistance().get());
+        double angleFromDistance = getAngle(vision.getDistance().get());
 
         setAngle(angleFromDistance);
-        flywheelSubsystem.setVelocity(veloFromDistance);
+        flywheelSubsystem.setVelocity(velocityFromDistance);
     }
 
+    /**
+     *
+     * @return the position of the shooter (degrees)
+     */
     public double getPosition() {
         int ticksPerRev = 8192;
         double revolutions = (double) encoder.getPosition() / ticksPerRev;
@@ -138,6 +124,12 @@ public class ShooterSubsystem {
         return !limitSwitch.getState();
     }
 
+    /**
+     *
+     * Sets the shooter to a specific angle
+     *
+     * @param targetAngle the angle for the shooter to go to (degrees)
+     */
     public void setAngle(double targetAngle) {
         targetAngle = Range.clip(targetAngle, ShooterConstants.MIN_ANGLE, ShooterConstants.MAX_ANGLE);
 
@@ -147,13 +139,17 @@ public class ShooterSubsystem {
         servo.setPower(power);
     }
 
+    /**
+     *
+     * Equation obtained from here: <a href="https://docs.google.com/spreadsheets/d/1m6Tb_BewsEm0vuEWVIr-rKV5Jfy468Ui95xVuQbh-_I/edit?usp=sharing">Spreadsheet</a>
+     *
+     * @param distance distance (m) from target (Front of robot to base of goal)
+     * @return Desired angle for shooter (degrees)
+     */
     public double getAngle(double distance) {
         return 2.51 + 21.1 * distance + -2.61 * Math.pow(distance, 2) + -1.13 * Math.pow(distance, 3);
     }
 
-    public double getVelocity(double distance) {
-        return 200 + 9.4 * distance + -58.5 * Math.pow(distance, 2) + 17 * Math.pow(distance, 3);
-    }
 
     // === Residual interpolation helper ===
     private double interpolate(double x, double[] xs, double[] ys) {

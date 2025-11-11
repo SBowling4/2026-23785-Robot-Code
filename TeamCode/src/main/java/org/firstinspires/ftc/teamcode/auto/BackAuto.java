@@ -58,28 +58,24 @@ public class BackAuto extends OpMode {
             return;
         }
 
-        flywheelSubsystem.setVelocity(FlywheelConstants.FAR_VELOCITY);
+        flywheelSubsystem.setVelocity(FlywheelConstants.FAR_AUTO_VELOCITY);
         shooterSubsystem.setAngle(ShooterConstants.FAR_ANGLE);
 
+        if (t > 4 && t < 9) {
+            feederSubsystem.feed(.6);
+        }
 
-        // Feed between 1s and 3s
-        if (t > 2 && t < 6) {
-            feederSubsystem.feed();
-        } else {
+        if (t < 10 && t > 9) {
             feederSubsystem.stop();
+            driveSubsystem.mecanum.driveRobotCentric(0, .5, 0);
         }
 
-        if (t > 6 && t < 8) {
-            driveSubsystem.mecanum.driveRobotCentric(0.0, 0.5, 0);
-        } else {
-            driveSubsystem.stop();
-        }
-
-        // End after 10s
-        if (t > 8) {
+        if (t > 10) {
             isFinished = true;
         }
 
+        telemetry.addData("Velocity", flywheelSubsystem.getVelocity());
+        telemetry.addData("Target Velocity", flywheelSubsystem.lastTargetRadPerSec);
         telemetry.update();
     }
 

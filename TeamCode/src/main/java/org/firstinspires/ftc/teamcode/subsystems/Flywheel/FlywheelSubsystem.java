@@ -129,7 +129,7 @@ public class FlywheelSubsystem {
 
         double volts = ffVolts + pidOutput;
 
-        setVoltage(- volts);
+        setVoltage(-volts);
     }
 
 
@@ -138,6 +138,16 @@ public class FlywheelSubsystem {
         double power = Range.clip(volts / getRobotVoltage(), -1.0, 1.0);
         leftMotor.set(power);
         rightMotor.set(power);
+    }
+
+    /**
+     * Equation obtained from here: <a href="https://docs.google.com/spreadsheets/d/1m6Tb_BewsEm0vuEWVIr-rKV5Jfy468Ui95xVuQbh-_I/edit?usp=sharing">Spreadsheet</a>
+     *
+     * @param distance distance (m) from target (Front of robot to base of goal)
+     * @return Desired velocity for flywheel (rad/s)
+     */
+    public double getVelocity(double distance) {
+        return 200 + 9.4 * distance + -58.5 * Math.pow(distance, 2) + 17 * Math.pow(distance, 3);
     }
 
     public void setPower(double power) {

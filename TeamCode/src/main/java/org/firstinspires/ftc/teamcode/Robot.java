@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configurable
 public class Robot {
-    public static final Alliance alliance = Alliance.BLUE;
+    public static Alliance alliance = Alliance.BLUE;
 
     public static Map<Integer, Artifact> motif = new HashMap<>();
     public static AtomicBoolean hasMotif = new AtomicBoolean(false);

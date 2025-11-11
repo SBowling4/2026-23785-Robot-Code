@@ -43,9 +43,14 @@ public class FeederSubsystem {
         feederMotor.set(1);
     }
 
+    public void feed(double power) {
+        feederMotor.set(power);
+    }
+
     public void back() {
         feederMotor.set(-1);
     }
+
 
     public void stop() {
         feederMotor.stopMotor();

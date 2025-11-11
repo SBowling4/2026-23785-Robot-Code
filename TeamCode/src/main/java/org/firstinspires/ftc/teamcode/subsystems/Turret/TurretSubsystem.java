@@ -52,7 +52,7 @@ public class TurretSubsystem {
      * Uses vision offset as an error signal (goal = 0°).
      */
     public void loop() {
-        Optional<Double> errorOpt = vision.getHorizontalAngle();
+        Optional<Double> errorOpt = vision.getTx();
 
         if (errorOpt.isPresent()) {
             double error = errorOpt.get(); // how far off-center the tag is
