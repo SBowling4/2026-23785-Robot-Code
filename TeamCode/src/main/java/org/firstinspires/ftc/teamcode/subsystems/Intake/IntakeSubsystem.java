@@ -24,13 +24,25 @@ public class IntakeSubsystem {
     }
 
     public void loop() {
-        if (gamepad1.a) {
-            intakeMotor.set(1);
+        if (gamepad1.a || gamepad1.b) {
+            intake();
         } else if (gamepad1.y ){
-            intakeMotor.set(-1);
+            out();
         } else {
-            intakeMotor.set(0);
+            stop();
         }
+    }
+
+    public void intake() {
+        intakeMotor.set(1);
+    }
+
+    public void out() {
+        intakeMotor.set(-1);
+    }
+
+    public void stop() {
+        intakeMotor.stopMotor();
     }
 
     public static IntakeSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2) {

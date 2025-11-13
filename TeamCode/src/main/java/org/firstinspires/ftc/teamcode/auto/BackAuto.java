@@ -61,8 +61,14 @@ public class BackAuto extends OpMode {
         flywheelSubsystem.setVelocity(FlywheelConstants.FAR_AUTO_VELOCITY);
         shooterSubsystem.setAngle(ShooterConstants.FAR_ANGLE);
 
+        if (t < .5) {
+            driveSubsystem.mecanum.driveRobotCentric(0, .5, 0);
+        } else if (t < 9){
+            driveSubsystem.stop();
+        }
+
         if (t > 4 && t < 9) {
-            feederSubsystem.feed(.6);
+            feederSubsystem.autoFeed();
         }
 
         if (t < 10 && t > 9) {
@@ -74,7 +80,7 @@ public class BackAuto extends OpMode {
             isFinished = true;
         }
 
-        telemetry.addData("Velocity", flywheelSubsystem.getVelocity());
+        telemetry.addData("Velocity", flywheelSubsystem.findVelocity());
         telemetry.addData("Target Velocity", flywheelSubsystem.lastTargetRadPerSec);
         telemetry.update();
     }

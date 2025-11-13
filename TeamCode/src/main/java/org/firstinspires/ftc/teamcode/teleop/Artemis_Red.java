@@ -103,7 +103,7 @@ public class Artemis_Red extends OpMode {
         telemetry.addData("Current Angle", shooterSubsystem.position);
         telemetry.addLine();
 
-        telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());
+        telemetry.addData("Flywheel Velocity", flywheelSubsystem.findVelocity());
 //        telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
         telemetry.addData("Tuning Flywheel Target", flywheelSubsystem.tuningVelocity);
         telemetry.addData("Flywheel Volts", flywheelSubsystem.lastTargetVolts);

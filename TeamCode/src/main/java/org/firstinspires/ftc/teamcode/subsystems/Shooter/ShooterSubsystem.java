@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 public class ShooterSubsystem {
@@ -90,20 +89,25 @@ public class ShooterSubsystem {
         }
 
 
-        if (gamepad2.left_bumper) {
+        if (gamepad1.right_bumper) {
             shoot();
         }
 
     }
 
     /**
-     * Gets the velo using
+     *
      */
     public void shoot() {
-        if (vision.getDistance().isEmpty()) return;
+        if (vision.getDistance().isEmpty()) {
+            setAngle(ShooterConstants.CLOSE_ANGLE);
+            flywheelSubsystem.setVelocity(FlywheelConstants.CLOSE_VELOCITY);
 
-        double velocityFromDistance = flywheelSubsystem.getVelocity(vision.getDistance().get());
-        double angleFromDistance = getAngle(vision.getDistance().get());
+            return;
+        }
+
+        double velocityFromDistance = flywheelSubsystem.findVelocity(vision.getDistance().get());
+        double angleFromDistance = findAngle(vision.getDistance().get());
 
         setAngle(angleFromDistance);
         flywheelSubsystem.setVelocity(velocityFromDistance);
@@ -146,8 +150,9 @@ public class ShooterSubsystem {
      * @param distance distance (m) from target (Front of robot to base of goal)
      * @return Desired angle for shooter (degrees)
      */
-    public double getAngle(double distance) {
-        return 2.51 + 21.1 * distance + -2.61 * Math.pow(distance, 2) + -1.13 * Math.pow(distance, 3);
+    public double findAngle(double distance) {
+        if (distance >= 1.5) return 25;
+        return 1.92 + 24.5 * distance + -7.94 * Math.pow(distance, 2) + 1.23 * Math.pow(distance, 3);
     }
 
 

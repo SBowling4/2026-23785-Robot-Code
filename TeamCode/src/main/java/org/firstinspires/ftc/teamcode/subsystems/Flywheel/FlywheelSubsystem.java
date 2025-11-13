@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.util.FeedForward;
 
@@ -109,7 +108,7 @@ public class FlywheelSubsystem {
         rightMotor.stopMotor();
     }
 
-    public double getVelocity() {
+    public double findVelocity() {
         return -(leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
@@ -118,7 +117,7 @@ public class FlywheelSubsystem {
         double dt = Math.max(1e-6, (nowNs - lastTimeNs) / 1e9);
         lastTimeNs = nowNs;
 
-        double currentRadPerSec = getVelocity();
+        double currentRadPerSec = findVelocity();
 
         double accelRadPerSec2 = (targetRadPerSec - lastTargetRadPerSec) / dt;
         lastTargetRadPerSec = targetRadPerSec;
@@ -130,6 +129,10 @@ public class FlywheelSubsystem {
         double volts = ffVolts + pidOutput;
 
         setVoltage(-volts);
+    }
+
+    public boolean atVelocity() {
+        return Math.abs(findVelocity() - lastTargetRadPerSec) < 5;
     }
 
 
@@ -146,8 +149,8 @@ public class FlywheelSubsystem {
      * @param distance distance (m) from target (Front of robot to base of goal)
      * @return Desired velocity for flywheel (rad/s)
      */
-    public double getVelocity(double distance) {
-        return 200 + 9.4 * distance + -58.5 * Math.pow(distance, 2) + 17 * Math.pow(distance, 3);
+    public double findVelocity(double distance) {
+        return 200 + 99.4 * distance + -58.5 * Math.pow(distance, 2) + 17 * Math.pow(distance, 3);
     }
 
     public void setPower(double power) {

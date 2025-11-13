@@ -93,12 +93,11 @@ public class VisionSubsystem {
     }
 
     public Optional<Double> getDistance() {
-        double scale = 3.2; //TODO: Redo this using standard regression
-        Optional<Double> Ta = getTa();
+        if (getTy().isEmpty()) return Optional.empty();
 
-        if (Ta.isEmpty()) return Optional.empty();
+        double ty = getTy().get();
 
-        return Optional.of(Math.sqrt(Ta.get() / scale));
+        return Optional.of(1.47 + -.107 * ty + 7.98e-3 * Math.pow(ty, 2) + -3.05e-4 * Math.pow(ty, 3));
     }
 
     //NOTE: These do not work but there's something here

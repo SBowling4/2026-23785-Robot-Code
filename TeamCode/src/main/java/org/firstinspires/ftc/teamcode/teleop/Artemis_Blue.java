@@ -73,7 +73,7 @@ public class Artemis_Blue extends OpMode {
         lastUpState = currentUpState;
         lastDownState = currentDownState;
 
-        if (!Robot.tuningMode) {
+        if (!Robot.tuningMode && !gamepad1.right_bumper) {
             if (gamepad1.left_bumper) {
                 flywheelSubsystem.setVelocity(Robot.shooterState.velocity);
                 shooterSubsystem.setAngle(Robot.shooterState.angle);
@@ -95,7 +95,7 @@ public class Artemis_Blue extends OpMode {
         telemetry.addData("Current Angle", shooterSubsystem.position);
         telemetry.addLine();
 
-        telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());
+        telemetry.addData("Flywheel Velocity", flywheelSubsystem.findVelocity());
         telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
         telemetry.addData("Flywheel Volts", flywheelSubsystem.lastTargetVolts);
         telemetry.addLine();
