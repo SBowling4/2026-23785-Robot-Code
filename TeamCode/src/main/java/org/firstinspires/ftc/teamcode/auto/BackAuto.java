@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 @Autonomous(name = "BackAuto")
 public class BackAuto extends OpMode {
@@ -20,6 +21,7 @@ public class BackAuto extends OpMode {
     private FlywheelSubsystem flywheelSubsystem;
     private FeederSubsystem feederSubsystem;
     private ShooterSubsystem shooterSubsystem;
+    private VisionSubsystem visionSubsystem;
 
     private final ElapsedTime time = new ElapsedTime();
     private boolean isFinished = false;
@@ -40,12 +42,15 @@ public class BackAuto extends OpMode {
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         feederSubsystem.init();
 
+        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
+        visionSubsystem.init();
+
         time.startTime();
     }
 
     @Override
     public void loop() {
-        driveSubsystem.setTelemetry();
+        visionSubsystem.loop();
         double t = time.seconds();
         telemetry.addData("Time", t);
 
@@ -58,13 +63,10 @@ public class BackAuto extends OpMode {
             return;
         }
 
-        flywheelSubsystem.setVelocity(FlywheelConstants.FAR_AUTO_VELOCITY);
-        shooterSubsystem.setAngle(ShooterConstants.FAR_ANGLE);
+        shooterSubsystem.shoot();
 
-        if (t < .5) {
-            driveSubsystem.mecanum.driveRobotCentric(0, .5, 0);
-        } else if (t < 9){
-            driveSubsystem.stop();
+        if (t < 9) {
+            driveSubsystem.align(0, 0);
         }
 
         if (t > 4 && t < 9) {
@@ -80,8 +82,10 @@ public class BackAuto extends OpMode {
             isFinished = true;
         }
 
-        telemetry.addData("Velocity", flywheelSubsystem.findVelocity());
+        telemetry.addData("Velocity", flywheelSubsystem.getVelocity());
         telemetry.addData("Target Velocity", flywheelSubsystem.lastTargetRadPerSec);
+
+        telemetry.addData("Distance", visionSubsystem.getDistance());
         telemetry.update();
     }
 

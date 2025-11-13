@@ -78,13 +78,16 @@ public class FlywheelSubsystem {
 
             setVelocity(tuningVelocity);
         } else {
-            if (gamepad2.a) {
-                setVelocity(FlywheelConstants.CLOSE_VELOCITY);
-            } else if (gamepad2.b) {
-                setVelocity(FlywheelConstants.MID_VELOCITY);
-            } else if (gamepad2.x) {
-                setVelocity(FlywheelConstants.FAR_VELOCITY);
+            if (gamepad1.a && !(gamepad1.left_bumper || gamepad1.right_bumper)) {
+                setPower(-1);
             }
+//            if (gamepad2.a) {
+//                setVelocity(FlywheelConstants.CLOSE_VELOCITY);
+//            } else if (gamepad2.b) {
+//                setVelocity(FlywheelConstants.MID_VELOCITY);
+//            } else if (gamepad2.x) {
+//                setVelocity(FlywheelConstants.FAR_VELOCITY);
+//            }
         }
 
 
@@ -108,7 +111,7 @@ public class FlywheelSubsystem {
         rightMotor.stopMotor();
     }
 
-    public double findVelocity() {
+    public double getVelocity() {
         return -(leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
@@ -117,7 +120,7 @@ public class FlywheelSubsystem {
         double dt = Math.max(1e-6, (nowNs - lastTimeNs) / 1e9);
         lastTimeNs = nowNs;
 
-        double currentRadPerSec = findVelocity();
+        double currentRadPerSec = getVelocity();
 
         double accelRadPerSec2 = (targetRadPerSec - lastTargetRadPerSec) / dt;
         lastTargetRadPerSec = targetRadPerSec;
@@ -132,7 +135,7 @@ public class FlywheelSubsystem {
     }
 
     public boolean atVelocity() {
-        return Math.abs(findVelocity() - lastTargetRadPerSec) < 5;
+        return Math.abs(getVelocity() - lastTargetRadPerSec) < 5;
     }
 
 
@@ -150,7 +153,7 @@ public class FlywheelSubsystem {
      * @return Desired velocity for flywheel (rad/s)
      */
     public double findVelocity(double distance) {
-        return 200 + 99.4 * distance + -58.5 * Math.pow(distance, 2) + 17 * Math.pow(distance, 3);
+        return 207 + 68.1 * distance + -24.3 * Math.pow(distance, 2) + 6.48 * Math.pow(distance, 3);
     }
 
     public void setPower(double power) {

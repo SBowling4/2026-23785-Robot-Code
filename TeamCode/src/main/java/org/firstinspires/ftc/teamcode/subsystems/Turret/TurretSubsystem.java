@@ -12,21 +12,17 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 import java.util.Optional;
 
 public class TurretSubsystem {
-
-    // Singleton instance
-    private static TurretSubsystem instance;
     private CRServoImplEx turretServo;
-    private Motor.Encoder encoder;
     private PIDController pidController;
 
-    // multi-turn tracking
-    private double revolutions = 0.0;
-    private double lastRawPosition = 0.0;
-    private double power = 0.0;
+    public double turretPower = 0.0;
 
-    private final VisionSubsystem vision = VisionSubsystem.getInstance();
+    private VisionSubsystem vision;
 
     private final HardwareMap hardwareMap;
+
+    private static TurretSubsystem instance;
+
 
     private TurretSubsystem(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
@@ -34,7 +30,6 @@ public class TurretSubsystem {
 
     public void init() {
         turretServo = hardwareMap.get(CRServoImplEx.class, TurretConstants.TURRET_SERVO_NAME);
-        encoder = FlywheelSubsystem.getInstance().leftMotor.encoder;
 
         pidController = new PIDController(
                 TurretConstants.kP,
@@ -42,9 +37,7 @@ public class TurretSubsystem {
                 TurretConstants.kD
         );
 
-        // Initialize lastRawPosition to avoid false wrap on first read
-        lastRawPosition = getRawPosition();
-        encoder.reset();
+        vision = VisionSubsystem.getInstance();
     }
 
     /**
@@ -52,66 +45,22 @@ public class TurretSubsystem {
      * Uses vision offset as an error signal (goal = 0°).
      */
     public void loop() {
-        Optional<Double> errorOpt = vision.getTx();
+        if (vision.getTx().isEmpty()) return;
 
-        if (errorOpt.isPresent()) {
-            double error = errorOpt.get(); // how far off-center the tag is
-            setCorrection(error);
-        } else {
-            // No tag detected → hold current angle
-            stop();
-        }
-    }
+        double tx = vision.getTx().get();
 
-    private double getRawPosition() {
-        return encoder.getPosition();
-    }
+        double pidOut = pidController.calculate(tx, 0);
 
-    /**
-     * Returns continuous position in servo rotations (multi-turn).
-     */
-    public double getContinuousPosition() {
-        double raw = getRawPosition();
+        turretPower = pidOut;
 
-        // Detect wraparound
-        if (raw - lastRawPosition > 0.5) {
-            // jumped backwards across 0
-            revolutions -= 1;
-        } else if (lastRawPosition - raw > 0.5) {
-            // jumped forwards across 1.0
-            revolutions += 1;
-        }
-
-        lastRawPosition = raw;
-        return revolutions + raw;
-    }
-
-    /**
-     * Returns continuous turret angle in degrees, including gear ratio.
-     */
-    public double getContinuousAngleDegrees() {
-        return getContinuousPosition() * 360.0 * TurretConstants.GEAR_RATIO;
-    }
-
-    /**
-     * Run PID to correct turret offset (goal = 0° error).
-     */
-    private void setCorrection(double errorDegrees) {
-        // PID drives error → 0
-        power = pidController.calculate(0.0, errorDegrees);
-
-        // Clip to valid CRServo range
-        power = Range.clip(power, -1.0, 1.0);
-
-        // Apply power, inverting right servo if necessary
-        turretServo.setPower(power);
+        turretServo.setPower(pidOut);
     }
 
     /**
      * Stop turret movement (hold current angle).
      */
     public void stop() {
-        power = 0.0;
+        turretPower = 0;
         turretServo.setPower(0.0);
     }
 

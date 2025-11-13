@@ -50,7 +50,6 @@ public class ShortAuto extends OpMode {
 
     @Override
     public void loop() {
-        driveSubsystem.setTelemetry();
         double t = time.seconds();
         telemetry.addData("Time", t);
 
@@ -133,7 +132,7 @@ public class ShortAuto extends OpMode {
             isFinished = true;
         }
 
-        telemetry.addData("Velocity", flywheelSubsystem.findVelocity());
+        telemetry.addData("Velocity", flywheelSubsystem.getVelocity());
         telemetry.addData("Target", flywheelSubsystem.lastTargetRadPerSec);
         telemetry.update();
     }

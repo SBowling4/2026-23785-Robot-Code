@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 
 public class FeederSubsystem {
     private MotorEx feederMotor;
-    private ColorRangeSensor colorSensor;
+//    private ColorRangeSensor colorSensor;
 
     private FlywheelSubsystem flywheelSubsystem;
 
@@ -30,7 +30,7 @@ public class FeederSubsystem {
 
     public void init() {
         feederMotor = new MotorEx(hardwareMap, FeederConstants.FEEDER_MOTOR_NAME);
-        colorSensor = hardwareMap.get(ColorRangeSensor.class, FeederConstants.COLOR_SENSOR_NAME);
+//        colorSensor = hardwareMap.get(ColorRangeSensor.class, FeederConstants.COLOR_SENSOR_NAME);
 
         flywheelSubsystem = FlywheelSubsystem.getInstance();
     }
@@ -72,13 +72,13 @@ public class FeederSubsystem {
         feederMotor.stopMotor();
     }
 
-    public boolean hasPiece() {
-        return getDistance() < .5;
-    }
+//    public boolean hasPiece() {
+//        return getDistance() < .5;
+//    }
 
-    public double getDistance() {
-        return colorSensor.getDistance(DistanceUnit.INCH);
-    }
+//    public double getDistance() {
+//        return colorSensor.getDistance(DistanceUnit.INCH);
+//    }
 
     public static FeederSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1) {
         if (instance == null) {
