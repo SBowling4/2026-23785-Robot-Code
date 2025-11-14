@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-@TeleOp(name = "Artemis_Blue", group = "Orion")
-public class Artemis_Blue extends OpMode {
+@TeleOp(name = "Kaos_Red", group = "Orion")
+public class Kaos_Red extends OpMode {
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
@@ -29,7 +29,7 @@ public class Artemis_Blue extends OpMode {
 
     @Override
     public void init() {
-        Robot.alliance = Alliance.BLUE;
+        Robot.alliance = Alliance.RED;
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 

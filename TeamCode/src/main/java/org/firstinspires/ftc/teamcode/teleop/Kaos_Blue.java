@@ -14,12 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-/**
- * DO NOT EDIT THIS CLASS STANDARDLY. JUST WORK ON BLUE, COPY PASTE OVER WHEN READY FOR COMP AND REPLACED ALLIANCE
- */
-@TeleOp(name = "Artemis_Red", group = "Orion")
-public class Artemis_Red extends OpMode {
-
+@TeleOp(name = "Kaos_Blue", group = "Orion")
+public class Kaos_Blue extends OpMode {
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
@@ -33,28 +29,25 @@ public class Artemis_Red extends OpMode {
 
     @Override
     public void init() {
-        Robot.alliance = Alliance.RED;
+        Robot.alliance = Alliance.BLUE;
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
-        driveSubsystem.init();
-
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
-        intakeSubsystem.init();
-
         flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
-        flywheelSubsystem.init();
-
         shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
-        shooterSubsystem.init();
-
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
-        feederSubsystem.init();
-
         visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
-        visionSubsystem.init();
 
+
+
+        driveSubsystem.init();
+        intakeSubsystem.init();
+        flywheelSubsystem.init();
+        shooterSubsystem.init();
+        feederSubsystem.init();
+        visionSubsystem.init();
     }
 
     @Override
@@ -80,7 +73,7 @@ public class Artemis_Red extends OpMode {
         lastUpState = currentUpState;
         lastDownState = currentDownState;
 
-        if (!Robot.tuningMode) {
+        if (!Robot.tuningMode && !gamepad1.right_bumper) {
             if (gamepad1.left_bumper) {
                 flywheelSubsystem.setVelocity(Robot.shooterState.velocity);
                 shooterSubsystem.setAngle(Robot.shooterState.angle);
@@ -98,14 +91,12 @@ public class Artemis_Red extends OpMode {
         telemetry.addData("Shooter State", Robot.tuningMode ? "TUNING" : Robot.shooterState.toString());
         telemetry.addLine();
 
-        telemetry.addData("Tuning Target Angle", shooterSubsystem.tuningPos);
-//        telemetry.addData("Target Angle", shooterSubsystem.targetPos);
+        telemetry.addData("Target Angle", shooterSubsystem.targetPos);
         telemetry.addData("Current Angle", shooterSubsystem.position);
         telemetry.addLine();
 
         telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());
-//        telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
-        telemetry.addData("Tuning Flywheel Target", flywheelSubsystem.tuningVelocity);
+        telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
         telemetry.addData("Flywheel Volts", flywheelSubsystem.lastTargetVolts);
         telemetry.addLine();
 
@@ -113,12 +104,10 @@ public class Artemis_Red extends OpMode {
 
         telemetry.addLine("//Vision//");
         telemetry.addData("LL Valid", visionSubsystem.llValid);
-        telemetry.addData("Ta", visionSubsystem.getTa());
-        telemetry.addData("Distance", visionSubsystem.getDistance());
-//        telemetry.addData("Horz", visionSubsystem.getHorizontalAngle().isPresent() ? visionSubsystem.getHorizontalAngle().get() : -1);
-//        telemetry.addData("Vert", visionSubsystem.getVerticalAngle().isPresent() ? visionSubsystem.getVerticalAngle().get() : -1);
-//        telemetry.addData("Distance", visionSubsystem.getDistance().isPresent() ? visionSubsystem.getDistance().get() : -1);
-
+        telemetry.addData("Ta", visionSubsystem.getTa().orElse(-1.0));
+        telemetry.addData("Tx", visionSubsystem.getTx().orElse(-1.0));
+        telemetry.addData("Ty", visionSubsystem.getTy().orElse(-1.0));
+        telemetry.addData("Distance", visionSubsystem.getDistance().orElse(-1.0));
 
 
         telemetry.update();

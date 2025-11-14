@@ -79,7 +79,7 @@ public class FlywheelSubsystem {
             setVelocity(tuningVelocity);
         } else {
             if (gamepad1.a && !(gamepad1.left_bumper || gamepad1.right_bumper)) {
-                setPower(-1);
+                setPower(1);
             }
 //            if (gamepad2.a) {
 //                setVelocity(FlywheelConstants.CLOSE_VELOCITY);

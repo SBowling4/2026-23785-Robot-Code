@@ -113,13 +113,7 @@ public class DriveSubsystem {
 
         double tx = visionSubsystem.getTx().get();
 
-        double target = 0;
-
-        if (tx > 0) {
-            target = 1;
-        } else if (tx < 0) {
-            target = -1;
-        }
+        double target = 1;
 
         double power = alignPID.calculate(tx, target);
 
