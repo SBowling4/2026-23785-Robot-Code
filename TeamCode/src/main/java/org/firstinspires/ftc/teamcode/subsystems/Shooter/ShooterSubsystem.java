@@ -90,7 +90,7 @@ public class ShooterSubsystem {
 
 
         if (gamepad1.right_bumper) {
-            shoot();
+            shoot(false);
         }
 
     }
@@ -98,12 +98,18 @@ public class ShooterSubsystem {
     /**
      *
      */
-    public void shoot() {
-        if (vision.getDistance().isEmpty()) {
-            setAngle(ShooterConstants.CLOSE_ANGLE);
-            flywheelSubsystem.setVelocity(FlywheelConstants.CLOSE_VELOCITY);
+    public void shoot(boolean isBack) {
+        if (vision.getDistance().isEmpty() && isBack) {
+            setAngle(ShooterConstants.FAR_ANGLE);
+            flywheelSubsystem.setVelocity(FlywheelConstants.FAR_VELOCITY);
 
             return;
+        }
+
+        if (vision.getDistance().isEmpty() && !isBack) {
+            setAngle(ShooterConstants.CLOSE_ANGLE);
+            flywheelSubsystem.setVelocity(FlywheelConstants.FAR_VELOCITY);
+
         }
 
         double velocityFromDistance = flywheelSubsystem.findVelocity(vision.getDistance().get());
@@ -112,6 +118,8 @@ public class ShooterSubsystem {
         setAngle(angleFromDistance);
         flywheelSubsystem.setVelocity(velocityFromDistance);
     }
+
+
 
     /**
      *

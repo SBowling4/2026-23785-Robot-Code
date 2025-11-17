@@ -14,8 +14,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 
-@Autonomous(name = "ShortAuto")
-public class ShortAuto extends OpMode {
+@Autonomous(name = "ShortAuto_Red")
+public class ShortAuto_Red extends OpMode {
 
     private DriveSubsystem driveSubsystem;
     private FlywheelSubsystem flywheelSubsystem;
@@ -83,25 +83,28 @@ public class ShortAuto extends OpMode {
             feederSubsystem.stop();
         }
 
-        if (t > 7 && t < 8) {
-            driveSubsystem.mecanum.driveRobotCentric(0, -.75, 0);
+//        if (t > 7 && t < 8) {
+//            driveSubsystem.mecanum.driveRobotCentric(0, -.75, 0);
+//            stopShooter();
+//        }
+//        if (t > 8 && t < 8.625) {
+//            driveSubsystem.mecanum.driveRobotCentric(0, 0, 0);
+//        }
+        if (t > 8 && t < 9) {
             stopShooter();
+            driveSubsystem.mecanum.driveRobotCentric(-.5, 0, 0);
         }
-        if (t > 8 && t < 8.625) {
-            driveSubsystem.mecanum.driveRobotCentric(0, 0, 0);
-        }
-        if (t > 8.625 && t < 9.25) {
-            driveSubsystem.mecanum.driveRobotCentric(0, 0, -1);
-        }
-        if (t > 9.25 && t < 11.5) {
-            driveSubsystem.mecanum.driveRobotCentric(0, 0.375, 0);
-            feederSubsystem.feed();
-            intakeSubsystem.intake();
-        }
-        if (t > 11.5 && t < 12.5) {
-            driveSubsystem.mecanum.driveRobotCentric(0, 0, 0);
 
-        }
+
+//        if (t > 9.25 && t < 11.5) {
+//            driveSubsystem.mecanum.driveRobotCentric(0, 0.375, 0);
+//            feederSubsystem.feed();
+//            intakeSubsystem.intake();
+//        }
+//        if (t > 11.5 && t < 12.5) {
+//            driveSubsystem.mecanum.driveRobotCentric(0, 0, 0);
+
+//        }
 //        if (t > 11.5 && t < 12.5) {
 //            driveSubsystem.mecanum.driveRobotCentric(0, -.5, 0);
 //            feederSubsystem.stop();
@@ -128,7 +131,7 @@ public class ShortAuto extends OpMode {
 //        }
 
         // End after 10s
-        if (t > 12.5) {
+        if (t > 9) {
             isFinished = true;
         }
 

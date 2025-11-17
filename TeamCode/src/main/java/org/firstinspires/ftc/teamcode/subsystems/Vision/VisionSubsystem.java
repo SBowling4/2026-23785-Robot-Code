@@ -22,6 +22,7 @@ public class VisionSubsystem {
     private final HardwareMap hardwareMap;
 
     public boolean llValid = true;
+    public boolean hasTag = true;
 
     private static VisionSubsystem instance;
 
@@ -44,13 +45,14 @@ public class VisionSubsystem {
         }
 
         llValid = true;
+        boolean hasTagThisRun = false;
 
         int goodTagId;
 
         if (Robot.alliance == Alliance.BLUE) {
             goodTagId = 20;
         } else if (Robot.alliance == Alliance.RED) {
-            goodTagId = 19;
+            goodTagId = 24;
         } else {
             goodTagId = -1;
         }
@@ -64,6 +66,8 @@ public class VisionSubsystem {
 
             if (fidResult.getFiducialId() == goodTagId) {
                 goodTag = fidResult;
+                hasTagThisRun = true;
+                continue;
             }
 
             if (VisionConstants.OBELISK_TAGS.contains(fidResult.getFiducialId())) {
@@ -71,6 +75,8 @@ public class VisionSubsystem {
             }
 
         }
+
+        hasTag = hasTagThisRun;
 
     }
 
