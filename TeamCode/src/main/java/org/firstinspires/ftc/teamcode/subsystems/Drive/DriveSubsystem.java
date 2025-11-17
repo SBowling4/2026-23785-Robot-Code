@@ -1,45 +1,34 @@
 package org.firstinspires.ftc.teamcode.subsystems.Drive;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 
 public class DriveSubsystem {
 
-    MotorEx frontLeft, frontRight, backLeft, backRight;
-    Motor.Encoder encoderLeft, encoderRight, encoderAux;
-    IMU gyro;
+    private MotorEx frontLeft, frontRight, backLeft, backRight;
+    private IMU gyro;
 
-    PIDController alignPID;
-
-    HolonomicOdometry odometry;
+    private PIDController alignPID;
     public MecanumDrive mecanum;
 
-    HardwareMap hardwareMap;
-    Telemetry telemetry;
-    Gamepad gamepad1;
+    public final HardwareMap hardwareMap;
+    private final Gamepad gamepad1;
 
-    private VisionSubsystem visionSubsystem;
+    private Vision vision;
 
     private static DriveSubsystem instance;
 
 
 
-    public DriveSubsystem(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {
-        this.telemetry = telemetry;
+    public DriveSubsystem(HardwareMap hardwareMap, Gamepad gamepad1) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
     }
@@ -59,11 +48,7 @@ public class DriveSubsystem {
         frontRight.setInverted(true);
 
 
-        encoderLeft = frontLeft.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
-        encoderRight = frontRight.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
-        encoderAux = backLeft.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
-
-        alignPID = new PIDController(DriveConstants.kP, 0, 0);
+        alignPID = new PIDController(DriveConstants.kP, DriveConstants.kI, DriveConstants.kD);
 
         gyro = hardwareMap.get(IMU.class, "imu");
 
@@ -73,12 +58,9 @@ public class DriveSubsystem {
                         RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
         gyro.initialize(parameters);
 
-        odometry = new HolonomicOdometry(() -> encoderLeft.getDistance(), () -> encoderRight.getDistance(),
-                () -> encoderAux.getDistance(), 17, 0);
-
         mecanum = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 
-        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
+        vision = Vision.getInstance(hardwareMap);
     }
 
     public void loop(){
@@ -90,8 +72,6 @@ public class DriveSubsystem {
 
 //        mecanum.driveFieldCentric(leftX, leftY, rightX, gyro.getRobotYawPitchRollAngles().getYaw());
         mecanum.driveRobotCentric(leftX, leftY, rightX);
-
-        odometry.update(encoderLeft.getDistance(), encoderRight.getDistance(), encoderAux.getDistance());
 
 
         if (gamepad1.x) {
@@ -109,9 +89,9 @@ public class DriveSubsystem {
     }
 
     public void align(double strafe, double forward) {
-        if (visionSubsystem.getTx().isEmpty()) return;
+        if (vision.getTx().isEmpty()) return;
 
-        double tx = visionSubsystem.getTx().get();
+        double tx = vision.getTx().get();
 
         double target = 1;
 
@@ -125,17 +105,6 @@ public class DriveSubsystem {
         gyro.resetYaw();
     }
 
-    public void resetPose() {
-        odometry.updatePose(new Pose2d());
-    }
-
-    public Pose2d getPose() {
-        return odometry.getPose();
-    }
-
-    public double getDistanceTraveled() {
-        return (encoderLeft.getDistance() + encoderRight.getDistance()) / 2.0;
-    }
 
     public void stop() {
         frontLeft.stopMotor();
@@ -144,9 +113,9 @@ public class DriveSubsystem {
         backRight.stopMotor();
     }
 
-    public static DriveSubsystem getInstance(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {
+    public static DriveSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1) {
         if (instance == null) {
-            instance = new DriveSubsystem(telemetry, hardwareMap, gamepad1);
+            instance = new DriveSubsystem(hardwareMap, gamepad1);
         }
         return instance;
     }

@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
-
-import java.util.Optional;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 
 public class TurretSubsystem {
     private CRServoImplEx turretServo;
@@ -17,7 +12,7 @@ public class TurretSubsystem {
 
     public double turretPower = 0.0;
 
-    private VisionSubsystem vision;
+    private Vision vision;
 
     private final HardwareMap hardwareMap;
 
@@ -37,7 +32,7 @@ public class TurretSubsystem {
                 TurretConstants.kD
         );
 
-        vision = VisionSubsystem.getInstance();
+        vision = Vision.getInstance();
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
@@ -14,13 +15,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configurable
 public class Robot {
-    public static Alliance alliance = Alliance.BLUE;
+    public static Alliance alliance = Alliance.UNKNOWN;
 
     public static Map<Integer, Artifact> motif = new HashMap<>();
     public static AtomicBoolean hasMotif = new AtomicBoolean(false);
     public static boolean tuningMode = false;
 
     public static ShooterStates shooterState = ShooterStates.MID;
+
+    private static HardwareMap hardwareMap;
 
 
     public enum ShooterStates {
@@ -60,6 +63,23 @@ public class Robot {
             case CLOSE:
                 break;
         }
+    }
+
+    public static void sendHardwareMap(HardwareMap hm) {
+        if (hardwareMap != null) return;
+        hardwareMap = hm;
+    }
+
+    public static double getRobotVoltage() {
+        try {
+            for (VoltageSensor vs : hardwareMap.voltageSensor) {
+                return vs.getVoltage();
+            }
+        } catch (NullPointerException npe) {
+            return -1;
+        }
+
+        return -1;
     }
 
 

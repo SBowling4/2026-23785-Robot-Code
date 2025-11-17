@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -11,8 +12,9 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 
+@Configurable
 public class ShooterSubsystem {
     public CRServoImplEx servo;
     public Motor.Encoder encoder;
@@ -21,7 +23,7 @@ public class ShooterSubsystem {
     public double position;
 
     private FlywheelSubsystem flywheelSubsystem;
-    private VisionSubsystem vision;
+    private Vision vision;
 
     private final HardwareMap hardwareMap;
     private final Gamepad gamepad1;
@@ -32,6 +34,9 @@ public class ShooterSubsystem {
     public double tuningPos = 0;
     public double targetPos = 0;
 
+    /**
+     * Shooter Subsystem constructor
+     */
     public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
@@ -62,7 +67,7 @@ public class ShooterSubsystem {
         pid.setTolerance(1);
 
         flywheelSubsystem = FlywheelSubsystem.getInstance();
-        vision = VisionSubsystem.getInstance();
+        vision = Vision.getInstance();
 
         tuningPos = 0;
     }
@@ -96,12 +101,14 @@ public class ShooterSubsystem {
     }
 
     /**
+     * Shoots the Artifact using the limelight. Calculates the angle and velocity using the distance from the tag from the Limelight
      *
+     * @param isBack If the default shooter mode (if no tag seen) should be Short or Far
      */
     public void shoot(boolean isBack) {
         if (vision.getDistance().isEmpty() && isBack) {
             setAngle(ShooterConstants.FAR_ANGLE);
-            flywheelSubsystem.setVelocity(FlywheelConstants.FAR_VELOCITY);
+            flywheelSubsystem.setVelocity(FlywheelConstants.FAR_AUTO_VELOCITY);
 
             return;
         }
@@ -132,6 +139,10 @@ public class ShooterSubsystem {
         return revolutions * 360.0 * ShooterConstants.GEAR_RATIO;
     }
 
+    /**
+     *
+     * @return the negative state of the limit switch (true is tripped)
+     */
     public boolean getLS() {
         return !limitSwitch.getState();
     }
@@ -159,25 +170,11 @@ public class ShooterSubsystem {
      * @return Desired angle for shooter (degrees)
      */
     public double findAngle(double distance) {
-        if (distance >= 1.5) return 25;
-        return 1.92 + 24.5 * distance + -7.94 * Math.pow(distance, 2) + 1.23 * Math.pow(distance, 3);
+        if (distance >= 1.425) return 25;
+        return -151 + 427 * distance + -356 * Math.pow(distance, 2) + 101 * Math.pow(distance, 3);
     }
 
 
-    // === Residual interpolation helper ===
-    private double interpolate(double x, double[] xs, double[] ys) {
-        if (xs.length == 0) return 0.0;
-        if (x <= xs[0]) return ys[0];
-        if (x >= xs[xs.length - 1]) return ys[ys.length - 1];
-
-        for (int i = 0; i < xs.length - 1; i++) {
-            if (x >= xs[i] && x <= xs[i + 1]) {
-                double t = (x - xs[i]) / (xs[i + 1] - xs[i]);
-                return ys[i] + t * (ys[i + 1] - ys[i]);
-            }
-        }
-        return 0.0;
-    }
 
     public static ShooterSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         if (instance == null) {
