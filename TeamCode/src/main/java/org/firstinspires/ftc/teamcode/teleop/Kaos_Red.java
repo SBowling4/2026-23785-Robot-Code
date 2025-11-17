@@ -1,0 +1,116 @@
+package org.firstinspires.ftc.teamcode.teleop;
+
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.util.Alliance;
+
+@TeleOp(name = "Kaos_Red", group = "Orion")
+public class Kaos_Red extends OpMode {
+    DriveSubsystem driveSubsystem;
+    IntakeSubsystem intakeSubsystem;
+    ShooterSubsystem shooterSubsystem;
+    VisionSubsystem visionSubsystem;
+    FlywheelSubsystem flywheelSubsystem;
+    FeederSubsystem feederSubsystem;
+
+    private boolean lastUpState = false;
+    private boolean lastDownState = false;
+
+
+    @Override
+    public void init() {
+        Robot.alliance = Alliance.RED;
+
+        telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
+
+        driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
+        intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+        feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
+        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
+
+
+
+        driveSubsystem.init();
+        intakeSubsystem.init();
+        flywheelSubsystem.init();
+        shooterSubsystem.init();
+        feederSubsystem.init();
+        visionSubsystem.init();
+    }
+
+    @Override
+    public void loop() {
+        driveSubsystem.loop();
+        intakeSubsystem.loop();
+        shooterSubsystem.loop();
+        flywheelSubsystem.loop();
+        feederSubsystem.loop();
+        visionSubsystem.loop();
+
+        boolean currentUpState = gamepad1.dpad_up;
+        boolean currentDownState = gamepad1.dpad_down;
+
+        if (currentUpState && !lastUpState) {
+            Robot.advanceState();
+        }
+
+        if (currentDownState && !lastDownState) {
+            Robot.reverseState();
+        }
+
+        lastUpState = currentUpState;
+        lastDownState = currentDownState;
+
+        if (!Robot.tuningMode && !gamepad1.right_bumper) {
+            if (gamepad1.left_bumper) {
+                flywheelSubsystem.setVelocity(Robot.shooterState.velocity);
+                shooterSubsystem.setAngle(Robot.shooterState.angle);
+            } else {
+                flywheelSubsystem.stop();
+                shooterSubsystem.setAngle(0);
+            }
+        }
+
+
+
+
+
+        telemetry.addLine("//Shooter//");
+        telemetry.addData("Shooter State", Robot.tuningMode ? "TUNING" : Robot.shooterState.toString());
+        telemetry.addLine();
+
+        telemetry.addData("Target Angle", shooterSubsystem.targetPos);
+        telemetry.addData("Current Angle", shooterSubsystem.position);
+        telemetry.addLine();
+
+        telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());
+        telemetry.addData("Flywheel Target", flywheelSubsystem.lastTargetRadPerSec);
+        telemetry.addData("Flywheel Volts", flywheelSubsystem.lastTargetVolts);
+        telemetry.addLine();
+
+
+
+        telemetry.addLine("//Vision//");
+        telemetry.addData("LL Valid", visionSubsystem.llValid);
+        telemetry.addData("Ta", visionSubsystem.getTa().orElse(-1.0));
+        telemetry.addData("Tx", visionSubsystem.getTx().orElse(-1.0));
+        telemetry.addData("Ty", visionSubsystem.getTy().orElse(-1.0));
+        telemetry.addData("Distance", visionSubsystem.getDistance().orElse(-1.0));
+
+
+        telemetry.update();
+    }
+
+}

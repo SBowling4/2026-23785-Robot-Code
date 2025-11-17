@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -18,22 +19,23 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
 
 public class DriveSubsystem {
 
-    private static DriveSubsystem instance;
-
-
-    HardwareMap hardwareMap;
-
     MotorEx frontLeft, frontRight, backLeft, backRight;
     Motor.Encoder encoderLeft, encoderRight, encoderAux;
     IMU gyro;
 
+    PIDController alignPID;
+
     HolonomicOdometry odometry;
     public MecanumDrive mecanum;
 
+    HardwareMap hardwareMap;
     Telemetry telemetry;
     Gamepad gamepad1;
 
     private VisionSubsystem visionSubsystem;
+
+    private static DriveSubsystem instance;
+
 
 
     public DriveSubsystem(Telemetry telemetry, HardwareMap hardwareMap, Gamepad gamepad1) {
@@ -61,7 +63,7 @@ public class DriveSubsystem {
         encoderRight = frontRight.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
         encoderAux = backLeft.encoder.setDistancePerPulse(DriveConstants.TICKS_TO_INCHES);
 
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        alignPID = new PIDController(DriveConstants.kP, 0, 0);
 
         gyro = hardwareMap.get(IMU.class, "imu");
 
@@ -80,6 +82,8 @@ public class DriveSubsystem {
     }
 
     public void loop(){
+        alignPID.setP(DriveConstants.kP);
+
         double leftX = applyDeadband(-gamepad1.left_stick_x);
         double leftY = applyDeadband(-gamepad1.left_stick_y);
         double rightX = applyDeadband(gamepad1.right_stick_x);
@@ -89,14 +93,9 @@ public class DriveSubsystem {
 
         odometry.update(encoderLeft.getDistance(), encoderRight.getDistance(), encoderAux.getDistance());
 
-        Pose2d visionPose = visionSubsystem.getVisionBotPose();
-
-        if (visionPose != null) {
-            odometry.updatePose(visionPose);
-        }
 
         if (gamepad1.x) {
-            zeroGyro();
+            align(leftX, leftY);
         }
 
     }
@@ -109,14 +108,18 @@ public class DriveSubsystem {
         }
     }
 
-    public void setTelemetry() {
-        telemetry.addLine("//Odometry//");
-        telemetry.addData("X Position (in)", getPose().getX());
-        telemetry.addData("Y Position (in)", getPose().getY());
-        telemetry.addData("Heading (rad)", getPose().getHeading());
-        telemetry.addLine();
-        telemetry.addLine();
+    public void align(double strafe, double forward) {
+        if (visionSubsystem.getTx().isEmpty()) return;
+
+        double tx = visionSubsystem.getTx().get();
+
+        double target = 1;
+
+        double power = alignPID.calculate(tx, target);
+
+        mecanum.driveRobotCentric(strafe, forward, -power);
     }
+
 
     public void zeroGyro() {
         gyro.resetYaw();
