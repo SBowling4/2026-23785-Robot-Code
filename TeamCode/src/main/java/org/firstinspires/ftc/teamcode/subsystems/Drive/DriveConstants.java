@@ -9,7 +9,7 @@ public class DriveConstants {
     public static final String RIGHT_FRONT_MOTOR_NAME = "FrontRight";
     public static final String RIGHT_BACK_MOTOR_NAME = "BackRight";
 
-    public static final  double TICKS_TO_INCHES = 8192 / ((35 / 25.4) * Math.PI);
+//    public static final  double TICKS_TO_INCHES = 8192 / ((35 / 25.4) * Math.PI);
     public static final double DEADBAND = .2;
 
     public static double kP = 0.2;

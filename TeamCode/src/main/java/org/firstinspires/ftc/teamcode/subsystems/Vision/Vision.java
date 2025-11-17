@@ -1,20 +1,17 @@
 package org.firstinspires.ftc.teamcode.subsystems.Vision;
 
-import android.graphics.Path;
-
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.Artifact;
 import org.firstinspires.ftc.teamcode.Robot;
 
 import java.util.Optional;
 
-public class VisionSubsystem {
+public class Vision {
     private Limelight3A limelight;
     private LLResult result;
     private LLResultTypes.FiducialResult goodTag;
@@ -24,9 +21,9 @@ public class VisionSubsystem {
     public boolean llValid = true;
     public boolean hasTag = true;
 
-    private static VisionSubsystem instance;
+    private static Vision instance;
 
-    public VisionSubsystem(HardwareMap hardwareMap) {
+    public Vision(HardwareMap hardwareMap) {
         this.hardwareMap = hardwareMap;
     }
 
@@ -34,7 +31,9 @@ public class VisionSubsystem {
         limelight = hardwareMap.get(Limelight3A.class, VisionConstants.LIMELIGHT_NAME);
 
         limelight.pipelineSwitch(0);
+    }
 
+    public void start() {
         limelight.start();
     }
 
@@ -45,7 +44,7 @@ public class VisionSubsystem {
         }
 
         llValid = true;
-        boolean hasTagThisRun = false;
+        hasTag = false;
 
         int goodTagId;
 
@@ -66,7 +65,7 @@ public class VisionSubsystem {
 
             if (fidResult.getFiducialId() == goodTagId) {
                 goodTag = fidResult;
-                hasTagThisRun = true;
+                hasTag = true;
                 continue;
             }
 
@@ -75,9 +74,6 @@ public class VisionSubsystem {
             }
 
         }
-
-        hasTag = hasTagThisRun;
-
     }
 
     public Optional<Double> getTx() {
@@ -165,14 +161,14 @@ public class VisionSubsystem {
     }
 
 
-    public static VisionSubsystem getInstance(HardwareMap hardwareMap) {
+    public static Vision getInstance(HardwareMap hardwareMap) {
         if (instance == null) {
-            instance = new VisionSubsystem(hardwareMap);
+            instance = new Vision(hardwareMap);
         }
         return instance;
     }
 
-    public static VisionSubsystem getInstance() {
+    public static Vision getInstance() {
         if (instance == null) {
             throw new IllegalStateException("Vision not initialized. Call getInstance(hardwareMap) first.");
         }

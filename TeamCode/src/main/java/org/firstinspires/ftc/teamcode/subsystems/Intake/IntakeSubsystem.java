@@ -26,7 +26,7 @@ public class IntakeSubsystem {
     public void loop() {
         if (gamepad1.a || gamepad1.b) {
             intake();
-        } else if (gamepad1.y ){
+        } else if (gamepad1.y){
             out();
         } else {
             stop();
@@ -45,16 +45,16 @@ public class IntakeSubsystem {
         intakeMotor.stopMotor();
     }
 
-    public static IntakeSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad2) {
+    public static IntakeSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1) {
         if (instance == null) {
-            instance = new IntakeSubsystem(hardwareMap, gamepad2);
+            instance = new IntakeSubsystem(hardwareMap, gamepad1);
         }
         return instance;
     }
 
     public static IntakeSubsystem getInstance() {
         if (instance == null) {
-            throw new IllegalStateException("IntakeSubsystem not initialized. Call getInstance(hardwareMap, gamepad2) first.");
+            throw new IllegalStateException("IntakeSubsystem not initialized. Call getInstance(hardwareMap, gamepad1) first.");
         }
         return instance;
     }

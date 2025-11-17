@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Vision.VisionSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 @TeleOp(name = "Kaos_Red", group = "Orion")
@@ -19,7 +19,7 @@ public class Kaos_Red extends OpMode {
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;
     ShooterSubsystem shooterSubsystem;
-    VisionSubsystem visionSubsystem;
+    Vision vision;
     FlywheelSubsystem flywheelSubsystem;
     FeederSubsystem feederSubsystem;
 
@@ -33,12 +33,12 @@ public class Kaos_Red extends OpMode {
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
-        driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
+        driveSubsystem = DriveSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
         shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
-        visionSubsystem = VisionSubsystem.getInstance(hardwareMap);
+        vision = Vision.getInstance(hardwareMap);
 
 
 
@@ -47,7 +47,14 @@ public class Kaos_Red extends OpMode {
         flywheelSubsystem.init();
         shooterSubsystem.init();
         feederSubsystem.init();
-        visionSubsystem.init();
+        vision.init();
+
+        Robot.sendHardwareMap(hardwareMap);
+    }
+
+    @Override
+    public void start() {
+        vision.start();
     }
 
     @Override
@@ -57,7 +64,7 @@ public class Kaos_Red extends OpMode {
         shooterSubsystem.loop();
         flywheelSubsystem.loop();
         feederSubsystem.loop();
-        visionSubsystem.loop();
+        vision.loop();
 
         boolean currentUpState = gamepad1.dpad_up;
         boolean currentDownState = gamepad1.dpad_down;
@@ -103,11 +110,12 @@ public class Kaos_Red extends OpMode {
 
 
         telemetry.addLine("//Vision//");
-        telemetry.addData("LL Valid", visionSubsystem.llValid);
-        telemetry.addData("Ta", visionSubsystem.getTa().orElse(-1.0));
-        telemetry.addData("Tx", visionSubsystem.getTx().orElse(-1.0));
-        telemetry.addData("Ty", visionSubsystem.getTy().orElse(-1.0));
-        telemetry.addData("Distance", visionSubsystem.getDistance().orElse(-1.0));
+        telemetry.addData("LL Valid", vision.llValid);
+        telemetry.addData("Has Tag", vision.hasTag);
+        telemetry.addData("Ta", vision.getTa().orElse(-1.0));
+        telemetry.addData("Tx", vision.getTx().orElse(-1.0));
+        telemetry.addData("Ty", vision.getTy().orElse(-1.0));
+        telemetry.addData("Distance", vision.getDistance().orElse(-1.0));
 
 
         telemetry.update();

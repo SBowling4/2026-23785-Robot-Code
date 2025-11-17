@@ -29,9 +29,9 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE);
 
     public static ThreeWheelConstants localizerConstants = new ThreeWheelConstants()
-            .forwardTicksToInches(2.43)
-            .strafeTicksToInches(-.035)
-            .turnTicksToInches(-.01)
+            .forwardTicksToInches(1)
+            .strafeTicksToInches(1)
+            .turnTicksToInches(1)
             .leftPodY(-6.140628)
             .rightPodY(6.140628)
             .strafePodX(-2.139)

@@ -9,9 +9,8 @@ public class FlywheelConstants {
 
     public static final double TICKS_PER_REVOLUTION = 25.0;
 
-    public static final double FLYWHEEL_RADIUS = 2;
 
-    public static double kP = 0.1;
+    public static double kP = 0.1; //DO NOT CHANGE THIS SAM I KNOW YOU WANT TO BUT NOT YET
     public static double kI = 0.0;
     public static double kD = 0.0;
 

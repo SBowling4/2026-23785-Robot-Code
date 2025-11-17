@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
@@ -30,10 +31,10 @@ public class ShortAuto_Red extends OpMode {
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        driveSubsystem = DriveSubsystem.getInstance(telemetry, hardwareMap, gamepad1);
+        driveSubsystem = DriveSubsystem.getInstance(hardwareMap, gamepad1);
         driveSubsystem.init();
 
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
         flywheelSubsystem.init();
 
         shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
@@ -44,6 +45,8 @@ public class ShortAuto_Red extends OpMode {
 
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap,gamepad1);
         intakeSubsystem.init();
+
+        Robot.sendHardwareMap(hardwareMap);
 
         time.startTime();
     }
