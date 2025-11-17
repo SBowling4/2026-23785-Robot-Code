@@ -6,8 +6,9 @@ import com.pedropathing.ftc.FollowerBuilder;
 import com.pedropathing.ftc.drivetrains.MecanumConstants;
 import com.pedropathing.ftc.localization.Encoder;
 import com.pedropathing.ftc.localization.constants.ThreeWheelConstants;
+import com.pedropathing.ftc.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.paths.PathConstraints;
-import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -17,7 +18,9 @@ public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(35.35);
 
-    public static MecanumConstants driveConstants = new MecanumConstants()
+    public static PathConstraints pathConstraints = new PathConstraints(.99, 100, 1, 1);
+
+    public static MecanumConstants mecanumConstants = new MecanumConstants()
             .maxPower(1)
             .rightFrontMotorName(DriveConstants.RIGHT_FRONT_MOTOR_NAME)
             .rightRearMotorName(DriveConstants.RIGHT_BACK_MOTOR_NAME)
@@ -32,20 +35,21 @@ public class Constants {
             .forwardTicksToInches(1)
             .strafeTicksToInches(1)
             .turnTicksToInches(1)
-            .leftPodY(-6.140628)
-            .rightPodY(6.140628)
+            .leftPodY(6.140628)
+            .rightPodY(-6.140628)
             .strafePodX(-2.139)
-            .leftEncoder_HardwareMapName(DriveConstants.LEFT_FRONT_MOTOR_NAME)
+            .leftEncoder_HardwareMapName(DriveConstants.LEFT_BACK_MOTOR_NAME)
             .rightEncoder_HardwareMapName(DriveConstants.RIGHT_FRONT_MOTOR_NAME)
-            .strafeEncoder_HardwareMapName(DriveConstants.LEFT_BACK_MOTOR_NAME)
-            .leftEncoderDirection(Encoder.REVERSE)
+            .strafeEncoder_HardwareMapName(DriveConstants.LEFT_FRONT_MOTOR_NAME)
+            .leftEncoderDirection(Encoder.FORWARD)
             .rightEncoderDirection(Encoder.REVERSE)
             .strafeEncoderDirection(Encoder.REVERSE);
 
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
-                .mecanumDrivetrain(driveConstants)
+                .pathConstraints(pathConstraints)
+                .mecanumDrivetrain(mecanumConstants)
                 .threeWheelLocalizer(localizerConstants)
                 .build();
 
