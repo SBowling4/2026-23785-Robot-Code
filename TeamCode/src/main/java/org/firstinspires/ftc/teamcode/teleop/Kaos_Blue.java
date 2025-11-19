@@ -70,11 +70,11 @@ public class Kaos_Blue extends OpMode {
         boolean currentDownState = gamepad1.dpad_down;
 
         if (currentUpState && !lastUpState) {
-            Robot.advanceState();
+            Robot.advanceShooterState();
         }
 
         if (currentDownState && !lastDownState) {
-            Robot.reverseState();
+            Robot.reverseShooterState();
         }
 
         lastUpState = currentUpState;
@@ -93,6 +93,9 @@ public class Kaos_Blue extends OpMode {
 
 
 
+
+        telemetry.addData("State", Robot.robotState.toString());
+        telemetry.addLine();
 
         telemetry.addLine("//Shooter//");
         telemetry.addData("Shooter State", Robot.tuningMode ? "TUNING" : Robot.shooterState.toString());
@@ -116,6 +119,10 @@ public class Kaos_Blue extends OpMode {
         telemetry.addData("Tx", vision.getTx().orElse(-1.0));
         telemetry.addData("Ty", vision.getTy().orElse(-1.0));
         telemetry.addData("Distance", vision.getDistance().orElse(-1.0));
+
+        telemetry.addLine("//Feeder//");
+        telemetry.addData("Has Piece", feederSubsystem.hasPiece());
+        telemetry.addData("Distance", feederSubsystem.getDistance());
 
 
         telemetry.update();

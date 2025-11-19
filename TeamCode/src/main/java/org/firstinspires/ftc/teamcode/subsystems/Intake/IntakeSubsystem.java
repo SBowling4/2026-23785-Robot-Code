@@ -4,6 +4,8 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Robot;
+
 public class IntakeSubsystem {
 
     private static IntakeSubsystem instance;
@@ -24,12 +26,27 @@ public class IntakeSubsystem {
     }
 
     public void loop() {
-        if (gamepad1.a || gamepad1.b) {
-            intake();
-        } else if (gamepad1.y){
-            out();
-        } else {
-            stop();
+        Robot.RobotStates state = Robot.robotState;
+
+        switch (state) {
+            case BASE:
+                if (gamepad1.a || gamepad1.b) {
+                    intake();
+                } else if (gamepad1.y) {
+                    out();
+                } else stop();
+                break;
+            case BALL_READY:
+                if (gamepad1.a || gamepad1.b) {
+                    intake();
+                } else stop();
+                break;
+            case SHOOTING:
+                if (gamepad1.a) intake();
+                else stop();
+                break;
+
+
         }
     }
 

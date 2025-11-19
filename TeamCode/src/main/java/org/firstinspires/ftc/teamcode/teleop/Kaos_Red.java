@@ -70,11 +70,11 @@ public class Kaos_Red extends OpMode {
         boolean currentDownState = gamepad1.dpad_down;
 
         if (currentUpState && !lastUpState) {
-            Robot.advanceState();
+            Robot.advanceShooterState();
         }
 
         if (currentDownState && !lastDownState) {
-            Robot.reverseState();
+            Robot.reverseShooterState();
         }
 
         lastUpState = currentUpState;

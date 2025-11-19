@@ -33,6 +33,7 @@ public class ShooterSubsystem {
 
     public double tuningPos = 0;
     public double targetPos = 0;
+    private boolean last = false;
 
     /**
      * Shooter Subsystem constructor
@@ -93,8 +94,16 @@ public class ShooterSubsystem {
             setAngle(tuningPos);
         }
 
+        if (gamepad1.left_bumper || gamepad1.right_bumper) {
+            Robot.robotState = Robot.RobotStates.SHOOTING;
+            last = true;
+        } else if (last && !gamepad1.left_bumper && !gamepad1.right_bumper) {
+            Robot.robotState = Robot.RobotStates.BASE;
+        }
+
 
         if (gamepad1.right_bumper) {
+            Robot.robotState = Robot.RobotStates.SHOOTING;
             shoot(false);
         }
 

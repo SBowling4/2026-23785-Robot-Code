@@ -53,6 +53,8 @@ public class FlywheelSubsystem {
     }
 
     public void loop() {
+        Robot.RobotStates state = Robot.robotState;
+
         if (Robot.tuningMode) {
             if (gamepad1.dpad_right) {
                 tuningVelocity += 2.5;
@@ -62,8 +64,19 @@ public class FlywheelSubsystem {
 
             setVelocity(tuningVelocity);
         } else {
-            if (gamepad1.a && !(gamepad1.left_bumper || gamepad1.right_bumper)) {
-                setPower(1);
+            switch (state) {
+                case BASE:
+                    if (gamepad1.a || gamepad1.b || gamepad1.y) {
+                        setPower(1);
+                    } else {
+                        stop();
+                    }
+                case BALL_READY:
+                    if (gamepad1.a || gamepad1.b || gamepad1.y) {
+                        setPower(1);
+                    } else {
+                        stop();
+                    }
             }
         }
 

@@ -13,7 +13,6 @@ import java.util.Optional;
 
 public class Vision {
     private Limelight3A limelight;
-    private LLResult result;
     private LLResultTypes.FiducialResult goodTag;
 
     private final HardwareMap hardwareMap;
@@ -56,7 +55,7 @@ public class Vision {
             goodTagId = -1;
         }
 
-        result = limelight.getLatestResult();
+        LLResult result = limelight.getLatestResult();
 
         if (result == null) return;
 
@@ -66,13 +65,7 @@ public class Vision {
             if (fidResult.getFiducialId() == goodTagId) {
                 goodTag = fidResult;
                 hasTag = true;
-                continue;
             }
-
-            if (VisionConstants.OBELISK_TAGS.contains(fidResult.getFiducialId())) {
-                setMotif(fidResult.getFiducialId());
-            }
-
         }
     }
 
@@ -131,34 +124,6 @@ public class Vision {
 //
 //        return Optional.of(verticalAngleRadians);
 //    }
-
-    public void setMotif(int tagId) {
-        if (Robot.hasMotif.get()) return;
-
-        if (tagId == 21) {
-            Robot.motif.put(1, Artifact.GREEN);
-            Robot.motif.put(2, Artifact.PURPLE);
-            Robot.motif.put(3, Artifact.PURPLE);
-
-            Robot.hasMotif.set(true);
-        }
-
-        if (tagId == 22) {
-            Robot.motif.put(1, Artifact.PURPLE);
-            Robot.motif.put(2, Artifact.GREEN);
-            Robot.motif.put(3, Artifact.PURPLE);
-
-            Robot.hasMotif.set(true);
-        }
-
-        if (tagId == 23) {
-            Robot.motif.put(1, Artifact.PURPLE);
-            Robot.motif.put(2, Artifact.PURPLE);
-            Robot.motif.put(3, Artifact.GREEN);
-
-            Robot.hasMotif.set(true);
-        }
-    }
 
 
     public static Vision getInstance(HardwareMap hardwareMap) {

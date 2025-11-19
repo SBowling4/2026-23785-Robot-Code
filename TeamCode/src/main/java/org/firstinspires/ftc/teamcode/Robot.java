@@ -7,18 +7,11 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
 import org.firstinspires.ftc.teamcode.util.Alliance;
-import org.firstinspires.ftc.teamcode.util.Artifact;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Configurable
 public class Robot {
     public static Alliance alliance = Alliance.UNKNOWN;
-
-    public static Map<Integer, Artifact> motif = new HashMap<>();
-    public static AtomicBoolean hasMotif = new AtomicBoolean(false);
+    public static RobotStates robotState = RobotStates.BASE;
     public static boolean tuningMode = false;
 
     public static ShooterStates shooterState = ShooterStates.MID;
@@ -39,7 +32,7 @@ public class Robot {
         }
     }
 
-    public static void advanceState() {
+    public static void advanceShooterState() {
         switch (shooterState) {
             case FAR:
                 break;
@@ -52,7 +45,7 @@ public class Robot {
         }
     }
 
-    public static void reverseState() {
+    public static void reverseShooterState() {
         switch (shooterState) {
             case FAR:
                 shooterState = ShooterStates.MID;
@@ -80,6 +73,12 @@ public class Robot {
         }
 
         return -1;
+    }
+
+    public enum RobotStates {
+        BASE,
+        BALL_READY,
+        SHOOTING
     }
 
 
