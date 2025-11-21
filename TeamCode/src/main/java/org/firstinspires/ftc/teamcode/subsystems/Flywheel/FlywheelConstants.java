@@ -4,8 +4,8 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class FlywheelConstants {
-    public static final String LEFT_FLYWHEEL_MOTOR_NAME = "FlywheelMotorLeft";
-    public static final String RIGHT_FLYWHEEL_MOTOR_NAME = "FlywheelMotorRight";
+    public static final String LEFT_FLYWHEEL_MOTOR_NAME = "ls";
+    public static final String RIGHT_FLYWHEEL_MOTOR_NAME = "rs";
 
     public static final double TICKS_PER_REVOLUTION = 25.0;
 

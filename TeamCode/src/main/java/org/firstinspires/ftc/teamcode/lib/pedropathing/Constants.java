@@ -15,10 +15,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeConstants;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(35.35);
+            .mass(30.6);
 
     public static PathConstraints pathConstraints = new PathConstraints(.99, 100, 1, 1);
 
@@ -34,15 +35,18 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE);
 
     public static ThreeWheelIMUConstants localizerConstants = new ThreeWheelIMUConstants()
+            .forwardTicksToInches(5.419e-4)
+            .strafeTicksToInches(5.410e-4)
+            .turnTicksToInches(.001989)
             .leftPodY(6.140628)
             .rightPodY(-6.140628)
             .strafePodX(-2.139)
             .leftEncoder_HardwareMapName(DriveConstants.LEFT_BACK_MOTOR_NAME)
-            .rightEncoder_HardwareMapName(DriveConstants.RIGHT_FRONT_MOTOR_NAME)
+            .rightEncoder_HardwareMapName(IntakeConstants.INTAKE_MOTOR_NAME)
             .strafeEncoder_HardwareMapName(DriveConstants.LEFT_FRONT_MOTOR_NAME)
-            .rightEncoderDirection(-1)
-            .leftEncoderDirection(1)
-            .strafeEncoderDirection(1)
+            .rightEncoderDirection(Encoder.REVERSE)
+            .leftEncoderDirection(Encoder.FORWARD)
+            .strafeEncoderDirection(Encoder.FORWARD)
             .IMU_HardwareMapName("imu")
             .IMU_Orientation(
                     new RevHubOrientationOnRobot(

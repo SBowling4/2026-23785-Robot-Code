@@ -4,9 +4,9 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Robot;
@@ -18,17 +18,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 public class ShooterSubsystem {
     public CRServoImplEx servo;
     public Motor.Encoder encoder;
-    private DigitalChannel limitSwitch;
+    private TouchSensor touchSensor;
     public PIDController pid;
-    public double position;
-
     private FlywheelSubsystem flywheelSubsystem;
     private Vision vision;
 
     private final HardwareMap hardwareMap;
     private final Gamepad gamepad1;
-    private final Gamepad gamepad2;
-
     private static ShooterSubsystem instance;
 
     public double tuningPos = 0;
@@ -41,7 +37,6 @@ public class ShooterSubsystem {
     public ShooterSubsystem(HardwareMap hardwareMap, Gamepad gamepad1, Gamepad gamepad2) {
         this.hardwareMap = hardwareMap;
         this.gamepad1 = gamepad1;
-        this.gamepad2 = gamepad2;
     }
 
     public void init() {
@@ -49,7 +44,7 @@ public class ShooterSubsystem {
 
         encoder = FlywheelSubsystem.getInstance().rightMotor.encoder;
 
-        limitSwitch = hardwareMap.get(DigitalChannel.class, ShooterConstants.LIMIT_SWITCH_NAME);
+        touchSensor = hardwareMap.get(TouchSensor.class, ShooterConstants.TOUCH_SENSOR_NAME);
 
         pid = new PIDController(
                 ShooterConstants.kP,
@@ -62,7 +57,6 @@ public class ShooterSubsystem {
 
         encoder.setDistancePerPulse(degreesPerPulse);
 
-        position = 0;
         encoder.reset();
 
         pid.setTolerance(1);
@@ -74,12 +68,8 @@ public class ShooterSubsystem {
     }
 
     public void loop() {
-        // Update multi-turn position tracking
-        position = getPosition();
-
-        if (getLS()) { // Active low
+        if (getTS()) {
             encoder.reset();
-            position = 0;
         }
 
         if (Robot.tuningMode) {
@@ -103,7 +93,6 @@ public class ShooterSubsystem {
 
 
         if (gamepad1.right_bumper) {
-            Robot.robotState = Robot.RobotStates.SHOOTING;
             shoot(false);
         }
 
@@ -128,6 +117,8 @@ public class ShooterSubsystem {
 
         }
 
+        if (vision.getDistance().isEmpty()) return;
+
         double velocityFromDistance = flywheelSubsystem.findVelocity(vision.getDistance().get());
         double angleFromDistance = findAngle(vision.getDistance().get());
 
@@ -150,10 +141,10 @@ public class ShooterSubsystem {
 
     /**
      *
-     * @return the negative state of the limit switch (true is tripped)
+     * @return if the sensor is pressed
      */
-    public boolean getLS() {
-        return !limitSwitch.getState();
+    public boolean getTS() {
+        return touchSensor.isPressed();
     }
 
     /**

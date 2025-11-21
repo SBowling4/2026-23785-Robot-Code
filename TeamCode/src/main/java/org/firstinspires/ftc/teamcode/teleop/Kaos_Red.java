@@ -99,7 +99,7 @@ public class Kaos_Red extends OpMode {
         telemetry.addLine();
 
         telemetry.addData("Target Angle", shooterSubsystem.targetPos);
-        telemetry.addData("Current Angle", shooterSubsystem.position);
+        telemetry.addData("Current Angle", shooterSubsystem.getPosition());
         telemetry.addLine();
 
         telemetry.addData("Flywheel Velocity", flywheelSubsystem.getVelocity());

@@ -4,8 +4,8 @@ import com.bylazar.configurables.annotations.Configurable;
 
 @Configurable
 public class ShooterConstants {
-    public static final String SERVO_NAME = "AngleServo";
-    public static final String LIMIT_SWITCH_NAME = "ShooterLS";
+    public static final String SERVO_NAME = "angle";
+    public static final String TOUCH_SENSOR_NAME = "ts";
     public static double kP = 0.0649;
     public static double kI = 0.0;
     public static double kD = 0.0;
