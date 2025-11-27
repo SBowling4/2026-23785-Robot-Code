@@ -67,7 +67,7 @@ public class BackAuto extends OpMode {
         shooterSubsystem.shoot(true);
 
         if (t < 9) {
-            driveSubsystem.align(0, 0);
+            driveSubsystem.align();
         }
 
         if (t > 4 && t < 9) {

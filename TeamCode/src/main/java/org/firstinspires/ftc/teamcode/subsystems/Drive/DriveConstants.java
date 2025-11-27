@@ -12,7 +12,7 @@ public class DriveConstants {
 //    public static final  double TICKS_TO_INCHES = 8192 / ((35 / 25.4) * Math.PI);
     public static final double DEADBAND = .2;
 
-    public static double kP = 0.2;
+    public static double kP = 0.05;
     public static double kI = 0.0;
     public static double kD = 0.0;
 

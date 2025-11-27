@@ -4,17 +4,17 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 
 public class DriveSubsystem {
 
     private MotorEx frontLeft, frontRight, backLeft, backRight;
-    private IMU gyro;
 
     private PIDController alignPID;
     public MecanumDrive mecanum;
@@ -25,6 +25,8 @@ public class DriveSubsystem {
     private Vision vision;
 
     private static DriveSubsystem instance;
+
+    private Follower follower;
 
 
 
@@ -50,46 +52,43 @@ public class DriveSubsystem {
 
         alignPID = new PIDController(DriveConstants.kP, DriveConstants.kI, DriveConstants.kD);
 
-        gyro = hardwareMap.get(IMU.class, "imu");
-
-        IMU.Parameters parameters = new IMU.Parameters(
-                new RevHubOrientationOnRobot(
-                        RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD,
-                        RevHubOrientationOnRobot.UsbFacingDirection.LEFT));
-        gyro.initialize(parameters);
-
         mecanum = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 
         vision = Vision.getInstance(hardwareMap);
+
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(new Pose());
+    }
+
+    public void start() {
+        follower.startTeleopDrive();
     }
 
     public void loop(){
         alignPID.setP(DriveConstants.kP);
 
-        double leftX = applyDeadband(-gamepad1.left_stick_x);
-        double leftY = applyDeadband(-gamepad1.left_stick_y);
-        double rightX = applyDeadband(gamepad1.right_stick_x);
-
-//        mecanum.driveFieldCentric(leftX, leftY, rightX, gyro.getRobotYawPitchRollAngles().getYaw());
-        mecanum.driveRobotCentric(leftX, leftY, rightX);
+        follower.setTeleOpDrive(
+                -gamepad1.left_stick_y,
+                gamepad1.left_stick_x,
+                -gamepad1.right_stick_x,
+                false
+        );
 
 
         if (gamepad1.x) {
-            align(leftX, leftY);
+            align();
         }
+
+        follower.update();
 
     }
 
-    public double applyDeadband(double value) {
-        if (Math.abs(value) < DriveConstants.DEADBAND) {
-            return 0.0;
-        } else {
-            return value;
-        }
-    }
 
-    public void align(double strafe, double forward) {
-        if (vision.getTx().isEmpty()) return;
+    public void align() {
+        if (vision.getTx().isEmpty()) {
+            mecanum.stop();
+            return;
+        }
 
         double tx = vision.getTx().get();
 
@@ -97,13 +96,10 @@ public class DriveSubsystem {
 
         double power = alignPID.calculate(tx, target);
 
-        mecanum.driveRobotCentric(strafe, forward, -power);
+        follower.setTeleOpDrive(0, 0, power);
     }
 
 
-    public void zeroGyro() {
-        gyro.resetYaw();
-    }
 
 
     public void stop() {

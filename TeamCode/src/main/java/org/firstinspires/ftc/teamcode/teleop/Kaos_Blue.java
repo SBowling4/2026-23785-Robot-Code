@@ -54,6 +54,7 @@ public class Kaos_Blue extends OpMode {
 
     @Override
     public void start() {
+        driveSubsystem.start();
         vision.start();
     }
 
@@ -119,6 +120,7 @@ public class Kaos_Blue extends OpMode {
         telemetry.addData("Tx", vision.getTx().orElse(-1.0));
         telemetry.addData("Ty", vision.getTy().orElse(-1.0));
         telemetry.addData("Distance", vision.getDistance().orElse(-1.0));
+        telemetry.addLine();
 
         telemetry.addLine("//Feeder//");
         telemetry.addData("Has Piece", feederSubsystem.hasPiece());
