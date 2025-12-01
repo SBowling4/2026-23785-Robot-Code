@@ -93,10 +93,11 @@ public class Kaos_Blue extends OpMode {
 
 
 
+        telemetry.addLine("//Odometry//");
+        telemetry.addData("X", driveSubsystem.getPose().getX());
+        telemetry.addData("Y", driveSubsystem.getPose().getY());
+        telemetry.addData("Heading", driveSubsystem.getPose().getHeading());
 
-
-        telemetry.addData("State", Robot.robotState.toString());
-        telemetry.addLine();
 
         telemetry.addLine("//Shooter//");
         telemetry.addData("Shooter State", Robot.tuningMode ? "TUNING" : Robot.shooterState.toString());
@@ -122,9 +123,6 @@ public class Kaos_Blue extends OpMode {
         telemetry.addData("Distance", vision.getDistance().orElse(-1.0));
         telemetry.addLine();
 
-        telemetry.addLine("//Feeder//");
-        telemetry.addData("Has Piece", feederSubsystem.hasPiece());
-        telemetry.addData("Distance", feederSubsystem.getDistance());
 
 
         telemetry.update();

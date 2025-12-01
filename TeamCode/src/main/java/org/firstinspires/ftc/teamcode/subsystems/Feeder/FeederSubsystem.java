@@ -12,8 +12,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 
 public class FeederSubsystem {
     private MotorEx feederMotor;
-    private ColorRangeSensor colorSensor;
-
     private FlywheelSubsystem flywheelSubsystem;
 
     private final HardwareMap hardwareMap;
@@ -29,44 +27,20 @@ public class FeederSubsystem {
 
     public void init() {
         feederMotor = new MotorEx(hardwareMap, FeederConstants.FEEDER_MOTOR_NAME);
-        colorSensor = hardwareMap.get(ColorRangeSensor.class, FeederConstants.COLOR_SENSOR_NAME);
 
         flywheelSubsystem = FlywheelSubsystem.getInstance();
     }
 
     public void loop() {
-        Robot.RobotStates state = Robot.robotState;
-
-        if (state != Robot.RobotStates.SHOOTING) {
-            if (hasPiece()) {
-                Robot.robotState = Robot.RobotStates.BALL_READY;
-            } else {
-                Robot.robotState = Robot.RobotStates.BASE;
-            }
+        if (gamepad1.a && (gamepad1.left_bumper || gamepad1.right_bumper)) {
+            autoFeed();
+        } else if (gamepad1.a) {
+            feed();
+        } else if (gamepad1.y || gamepad1.b) {
+            back();
+        } else {
+            stop();
         }
-
-        switch (state) {
-            case BASE:
-                if (gamepad1.a) {
-                    feed();
-                } else if (gamepad1.y) {
-                    back();
-                } else stop();
-                break;
-            case BALL_READY:
-                if (gamepad1.b || gamepad1.y) {
-                    back();
-                } else {
-                    stop();
-                }
-                break;
-            case SHOOTING:
-                if (gamepad1.a) {
-                    autoFeed();
-                }
-                break;
-        }
-
     }
 
     public void feed() {
@@ -94,13 +68,6 @@ public class FeederSubsystem {
         feederMotor.stopMotor();
     }
 
-    public boolean hasPiece() {
-        return getDistance() < 1.1;
-    }
-
-    public double getDistance() {
-        return colorSensor.getDistance(DistanceUnit.INCH);
-    }
 
     public static FeederSubsystem getInstance(HardwareMap hardwareMap, Gamepad gamepad1) {
         if (instance == null) {

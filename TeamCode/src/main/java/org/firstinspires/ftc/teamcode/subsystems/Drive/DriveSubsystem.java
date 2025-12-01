@@ -46,9 +46,8 @@ public class DriveSubsystem {
         backLeft.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
 
-        backRight.setInverted(true);
         frontRight.setInverted(true);
-
+        backRight.setInverted(true);
 
         alignPID = new PIDController(DriveConstants.kP, DriveConstants.kI, DriveConstants.kD);
 
@@ -67,9 +66,10 @@ public class DriveSubsystem {
     public void loop(){
         alignPID.setP(DriveConstants.kP);
 
+
         follower.setTeleOpDrive(
                 -gamepad1.left_stick_y,
-                gamepad1.left_stick_x,
+                -gamepad1.left_stick_x,
                 -gamepad1.right_stick_x,
                 false
         );
@@ -77,6 +77,10 @@ public class DriveSubsystem {
 
         if (gamepad1.x) {
             align();
+        }
+
+        if (gamepad1.share) {
+            resetHeading();
         }
 
         follower.update();
@@ -97,6 +101,15 @@ public class DriveSubsystem {
         double power = alignPID.calculate(tx, target);
 
         follower.setTeleOpDrive(0, 0, power);
+    }
+
+    public Pose getPose() {
+        return follower.getPose();
+    }
+
+    public void resetHeading() {
+        follower.setPose(follower.getPose().setHeading(0));
+
     }
 
 

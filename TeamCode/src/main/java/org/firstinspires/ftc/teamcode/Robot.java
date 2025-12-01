@@ -11,7 +11,6 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 @Configurable
 public class Robot {
     public static Alliance alliance = Alliance.UNKNOWN;
-    public static RobotStates robotState = RobotStates.BASE;
     public static boolean tuningMode = false;
 
     public static ShooterStates shooterState = ShooterStates.MID;
@@ -75,11 +74,6 @@ public class Robot {
         return -1;
     }
 
-    public enum RobotStates {
-        BASE,
-        BALL_READY,
-        SHOOTING
-    }
 
 
 }

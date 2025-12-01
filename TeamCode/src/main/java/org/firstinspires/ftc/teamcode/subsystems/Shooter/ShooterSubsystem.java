@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 
-@Configurable
 public class ShooterSubsystem {
     public CRServoImplEx servo;
     public Motor.Encoder encoder;
@@ -82,13 +81,6 @@ public class ShooterSubsystem {
             tuningPos = Range.clip(tuningPos, 0, 25);
 
             setAngle(tuningPos);
-        }
-
-        if (gamepad1.left_bumper || gamepad1.right_bumper) {
-            Robot.robotState = Robot.RobotStates.SHOOTING;
-            last = true;
-        } else if (last && !gamepad1.left_bumper && !gamepad1.right_bumper) {
-            Robot.robotState = Robot.RobotStates.BASE;
         }
 
 

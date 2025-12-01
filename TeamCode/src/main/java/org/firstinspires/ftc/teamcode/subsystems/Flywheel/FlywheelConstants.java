@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.Flywheel;
 
 import com.bylazar.configurables.annotations.Configurable;
 
-@Configurable
 public class FlywheelConstants {
     public static final String LEFT_FLYWHEEL_MOTOR_NAME = "ls";
     public static final String RIGHT_FLYWHEEL_MOTOR_NAME = "rs";

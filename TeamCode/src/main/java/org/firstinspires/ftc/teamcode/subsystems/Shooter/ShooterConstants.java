@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.Shooter;
 
 import com.bylazar.configurables.annotations.Configurable;
 
-@Configurable
 public class ShooterConstants {
     public static final String SERVO_NAME = "angle";
     public static final String TOUCH_SENSOR_NAME = "ts";

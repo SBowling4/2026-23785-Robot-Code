@@ -26,30 +26,14 @@ public class IntakeSubsystem {
     }
 
     public void loop() {
-        Robot.RobotStates state = Robot.robotState;
-
-        switch (state) {
-            case BASE:
-                if (gamepad1.a || gamepad1.b) {
-                    intake();
-                } else if (gamepad1.y) {
-                    out();
-                } else stop();
-                break;
-            case BALL_READY:
-                if (gamepad1.a || gamepad1.b) {
-                    intake();
-                } else stop();
-                break;
-            case SHOOTING:
-                if (gamepad1.a) intake();
-                else stop();
-                break;
-
-
+        if (gamepad1.a || gamepad1.b) {
+            intake();
+        } else if (gamepad1.y){
+            out();
+        } else {
+            stop();
         }
     }
-
     public void intake() {
         intakeMotor.set(1);
     }
