@@ -20,10 +20,10 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeConstants;
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(30.6)
-            .forwardZeroPowerAcceleration(-59.42736861022029)
-            .lateralZeroPowerAcceleration(-72.45014571157682)
-            .translationalPIDFCoefficients(new PIDFCoefficients(.1, 0, .008, .05))
-            .headingPIDFCoefficients(new PIDFCoefficients(1.4, 0, .015, .02));
+            .forwardZeroPowerAcceleration(-42.233538015420116)
+            .lateralZeroPowerAcceleration(-114.49997897772923)
+            .translationalPIDFCoefficients(new PIDFCoefficients(.01, 0, .001, .06))
+            .headingPIDFCoefficients(new PIDFCoefficients(1.2, 0, .05, .03));
 
     public static PathConstraints pathConstraints = new PathConstraints(
             .99,
@@ -42,8 +42,8 @@ public class Constants {
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(52.96506252885765)
-            .yVelocity(41.8945308247538);
+            .xVelocity(62.88012216535767)
+            .yVelocity(56.218767813481534);
 
 
     public static ThreeWheelConstants localizerConstants = new ThreeWheelConstants()

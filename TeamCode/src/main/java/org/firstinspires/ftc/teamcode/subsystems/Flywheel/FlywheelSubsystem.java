@@ -53,9 +53,11 @@ public class FlywheelSubsystem {
     }
 
     public void loop() {
-        if (gamepad1.a || gamepad1.b || gamepad1.y) {
+        if (gamepad1.left_bumper || gamepad1.right_bumper) {
+
+        } else if (gamepad1.a || gamepad1.b || gamepad1.y) {
             setPower(1);
-        } else if (!(gamepad1.left_bumper || gamepad1.right_bumper)) {
+        } else {
             stop();
         }
     }
