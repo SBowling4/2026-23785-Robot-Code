@@ -22,13 +22,15 @@ public class Constants {
             .mass(30.6)
             .forwardZeroPowerAcceleration(-42.233538015420116)
             .lateralZeroPowerAcceleration(-114.49997897772923)
-            .translationalPIDFCoefficients(new PIDFCoefficients(.01, 0, .001, .06))
-            .headingPIDFCoefficients(new PIDFCoefficients(1.2, 0, .05, .03));
+            .translationalPIDFCoefficients(new PIDFCoefficients(.15, 0, .002, .004))
+            .headingPIDFCoefficients(new PIDFCoefficients(1.5, 0, .02, .03))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(.03, 0, .00001, .6, .03))
+            .centripetalScaling(0.0003);
 
     public static PathConstraints pathConstraints = new PathConstraints(
             .99,
             100,
-            1,
+            1.5,
             1
     );
 
