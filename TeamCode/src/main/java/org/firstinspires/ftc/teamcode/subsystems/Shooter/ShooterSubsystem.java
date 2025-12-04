@@ -93,7 +93,7 @@ public class ShooterSubsystem {
     /**
      * Shoots the Artifact using the limelight. Calculates the angle and velocity using the distance from the tag from the Limelight
      *
-     * @param isBack If the default shooter mode (if no tag seen) should be Short or Far
+     * @param isBack If the default shooter mode (if no tag seen) should be true if far, false if short
      */
     public void shoot(boolean isBack) {
         if (vision.getDistance().isEmpty() && isBack) {
@@ -105,9 +105,11 @@ public class ShooterSubsystem {
 
         if (vision.getDistance().isEmpty() && !isBack) {
             setAngle(ShooterConstants.CLOSE_ANGLE);
-            flywheelSubsystem.setVelocity(FlywheelConstants.FAR_VELOCITY);
+            flywheelSubsystem.setVelocity(FlywheelConstants.CLOSE_VELOCITY);
 
+            return;
         }
+
 
         if (vision.getDistance().isEmpty()) return;
 

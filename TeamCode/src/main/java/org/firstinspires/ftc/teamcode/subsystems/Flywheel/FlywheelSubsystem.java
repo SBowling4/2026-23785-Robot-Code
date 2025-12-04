@@ -68,7 +68,7 @@ public class FlywheelSubsystem {
     }
 
     public double getVelocity() {
-        return -(leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
+        return (leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
     public void setVelocity(double targetRadPerSec) {
