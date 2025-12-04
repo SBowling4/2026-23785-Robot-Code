@@ -38,7 +38,7 @@ public class FlywheelSubsystem {
         leftMotor = new MotorEx(hardwareMap, FlywheelConstants.LEFT_FLYWHEEL_MOTOR_NAME);
         rightMotor = new MotorEx(hardwareMap, FlywheelConstants.RIGHT_FLYWHEEL_MOTOR_NAME);
 
-        ff = new FeedForward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
+        ff = new FeedForward(FlywheelConstants.kS, FlywheelConstants.kVt, FlywheelConstants.kA);
 
         pid = new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
 
@@ -68,7 +68,8 @@ public class FlywheelSubsystem {
     }
 
     public double getVelocity() {
-        return (leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
+        double flip = Robot.isTele ? -1 : 1; //NO, I DON'T KNOW. DON'T ASK.
+        return flip * (leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
     public void setVelocity(double targetRadPerSec) {

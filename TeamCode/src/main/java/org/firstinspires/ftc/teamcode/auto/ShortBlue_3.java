@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
+import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
@@ -20,7 +21,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 @Autonomous
-public class ShortBlue extends OpMode {
+public class ShortBlue_3 extends OpMode {
     private Follower follower;
     private Timer autoTimer, pathTimer;
 
@@ -83,8 +84,10 @@ public class ShortBlue extends OpMode {
 
     @Override
     public void init() {
-        telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
         Robot.alliance = Alliance.BLUE;
+        Robot.isTele = false;
+
+        telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
         pathState = PathState.DRIVE_STARTPOS_SHOOTPOS;
 
@@ -93,16 +96,18 @@ public class ShortBlue extends OpMode {
 
         follower = Constants.createFollower(hardwareMap);
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
-        feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+        feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         vision = Vision.getInstance(hardwareMap);
 
+
+
+        intakeSubsystem.init();
         flywheelSubsystem.init();
         shooterSubsystem.init();
         feederSubsystem.init();
-        intakeSubsystem.init();
         vision.init();
 
         buildPaths();
@@ -120,7 +125,6 @@ public class ShortBlue extends OpMode {
     @Override
     public void loop() {
         vision.loop();
-        shooterSubsystem.loop();
 
         follower.update();
         statePathUpdate();

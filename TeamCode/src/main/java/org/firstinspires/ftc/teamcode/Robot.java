@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 @Configurable
 public class Robot {
     public static Alliance alliance = Alliance.UNKNOWN;
+    public static boolean isTele = false;
     public static boolean tuningMode = false;
 
     public static ShooterStates shooterState = ShooterStates.MID;
