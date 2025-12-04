@@ -12,8 +12,7 @@ public class FlywheelConstants {
     public static double kD = 0.0;
 
     public static double kS = 1.709;
-    public static double kVt = .0234;
-    public static double kVa = .01;
+    public static double kV = .0234;
     public static double kA = 0.0;
 
     public static double CLOSE_VELOCITY = 227.5;
@@ -21,5 +20,6 @@ public class FlywheelConstants {
     public static double FAR_VELOCITY = 340;
 
     public static double FAR_AUTO_VELOCITY = 360;
+
 
 }

@@ -38,7 +38,7 @@ public class FlywheelSubsystem {
         leftMotor = new MotorEx(hardwareMap, FlywheelConstants.LEFT_FLYWHEEL_MOTOR_NAME);
         rightMotor = new MotorEx(hardwareMap, FlywheelConstants.RIGHT_FLYWHEEL_MOTOR_NAME);
 
-        ff = new FeedForward(FlywheelConstants.kS, FlywheelConstants.kVt, FlywheelConstants.kA);
+        ff = new FeedForward(FlywheelConstants.kS, FlywheelConstants.kV, FlywheelConstants.kA);
 
         pid = new PIDController(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
 
@@ -68,7 +68,7 @@ public class FlywheelSubsystem {
     }
 
     public double getVelocity() {
-        double flip = Robot.isTele ? -1 : 1; //NO, I DON'T KNOW. DON'T ASK.
+        double flip = Robot.isTele ? -1 : 1;
         return flip * (leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
@@ -77,14 +77,20 @@ public class FlywheelSubsystem {
 
         lastTargetRadPerSec = targetRadPerSec;
 
-        double ffVolts = ff.calculate(targetRadPerSec);
+        // Use absolute value for feedforward to ensure kS term has correct sign
+        // The direction will be handled by the overall voltage sign
+        double ffVolts = ff.calculate(Math.abs(targetRadPerSec));
+
+        // PID works on signed values
         double pidOutput = pid.calculate(currentRadPerSec, targetRadPerSec);
 
-        double volts = ffVolts + pidOutput;
+        // Combine feedforward and feedback, applying correct sign
+        double volts = Math.signum(targetRadPerSec) * ffVolts + pidOutput;
 
         lastTargetVolts = volts;
 
-        setVoltage(-volts);
+        double flip = Robot.isTele ? -1 : 1;
+        setVoltage(flip * volts);
     }
 
     public boolean atVelocity() {

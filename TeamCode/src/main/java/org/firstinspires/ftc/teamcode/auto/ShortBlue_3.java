@@ -14,8 +14,10 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -59,7 +61,7 @@ public class ShortBlue_3 extends OpMode {
     public void statePathUpdate() {
         switch (pathState) {
             case DRIVE_STARTPOS_SHOOTPOS:
-                follower.followPath(driveStartShoot, true);
+                follower.followPath(driveStartShoot, false);
                 setPathState(PathState.SHOOT_PRELOAD);
                 break;
             case SHOOT_PRELOAD:
@@ -86,6 +88,8 @@ public class ShortBlue_3 extends OpMode {
     public void init() {
         Robot.alliance = Alliance.BLUE;
         Robot.isTele = false;
+
+        Robot.sendHardwareMap(hardwareMap);
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 

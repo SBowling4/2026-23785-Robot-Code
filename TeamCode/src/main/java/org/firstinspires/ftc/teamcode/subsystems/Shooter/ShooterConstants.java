@@ -17,4 +17,6 @@ public class ShooterConstants {
     public static final double MID_ANGLE = 20.5;
     public static final double CLOSE_ANGLE = 6;
 
+    public static final double CLOSE_AUTO_ANGLE = 24;
+
 }
