@@ -90,6 +90,10 @@ public class ShooterSubsystem {
 
     }
 
+    public boolean atPosition() {
+        return Math.abs(getPosition() - targetPos) < 1;
+    }
+
     /**
      * Shoots the Artifact using the limelight. Calculates the angle and velocity using the distance from the tag from the Limelight
      *

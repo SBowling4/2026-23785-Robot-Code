@@ -68,8 +68,7 @@ public class FlywheelSubsystem {
     }
 
     public double getVelocity() {
-        double flip = Robot.isTele ? -1 : 1;
-        return flip * (leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
+        return -(leftMotor.getVelocity()  / FlywheelConstants.TICKS_PER_REVOLUTION) * 2 * Math.PI;
     }
 
     public void setVelocity(double targetRadPerSec) {
@@ -89,8 +88,7 @@ public class FlywheelSubsystem {
 
         lastTargetVolts = volts;
 
-        double flip = Robot.isTele ? -1 : 1;
-        setVoltage(flip * volts);
+        setVoltage(-volts);
     }
 
     public boolean atVelocity() {

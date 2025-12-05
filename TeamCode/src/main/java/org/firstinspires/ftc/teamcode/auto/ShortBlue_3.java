@@ -14,10 +14,8 @@ import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -31,11 +29,13 @@ public class ShortBlue_3 extends OpMode {
     FlywheelSubsystem flywheelSubsystem;
     FeederSubsystem feederSubsystem;
     IntakeSubsystem intakeSubsystem;
+    DriveSubsystem driveSubsystem;
     Vision vision;
 
     public enum PathState {
         DRIVE_STARTPOS_SHOOTPOS,
         SHOOT_PRELOAD,
+        DRIVE_SHOOT_READY_PICKUP,
         END
     }
 
@@ -43,13 +43,19 @@ public class ShortBlue_3 extends OpMode {
 
     private final Pose startPose = new Pose(20.101083032490973, 124.24548736462094, Math.toRadians(144));
     private final Pose shootPose = new Pose(56.317689530685925, 87.33574007220216, Math.toRadians(144));
+    private final Pose readyPickupPose = new Pose(41.588447653429604, 84.21660649819495, Math.toRadians(180));
 
-    private PathChain driveStartShoot;
+
+    private PathChain driveStartShoot, driveReadyPickup;
 
     public void buildPaths() {
         driveStartShoot = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, shootPose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
+                .build();
+        driveReadyPickup = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose, readyPickupPose))
+                .setLinearHeadingInterpolation(shootPose.getHeading(), readyPickupPose.getHeading())
                 .build();
     }
 
@@ -66,14 +72,20 @@ public class ShortBlue_3 extends OpMode {
                 break;
             case SHOOT_PRELOAD:
                 if (!follower.isBusy()) {
+//                    driveSubsystem.align();
                     shooterSubsystem.shoot(false);
                     feederSubsystem.autoFeed();
                 }
 
                 if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 8) {
-                    setPathState(PathState.END);
+                    follower.followPath(driveReadyPickup);
+                    setPathState(PathState.DRIVE_SHOOT_READY_PICKUP);
                 }
                 break;
+            case DRIVE_SHOOT_READY_PICKUP:
+                if (!follower.isBusy()) {
+                    setPathState(PathState.END);
+                }
             case END:
                 flywheelSubsystem.stop();
                 shooterSubsystem.setAngle(0);
@@ -87,7 +99,6 @@ public class ShortBlue_3 extends OpMode {
     @Override
     public void init() {
         Robot.alliance = Alliance.BLUE;
-        Robot.isTele = false;
 
         Robot.sendHardwareMap(hardwareMap);
 
@@ -97,9 +108,10 @@ public class ShortBlue_3 extends OpMode {
 
         pathTimer = new Timer();
         autoTimer = new Timer();
-
         follower = Constants.createFollower(hardwareMap);
 
+
+        driveSubsystem = DriveSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
         flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
         shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
@@ -112,6 +124,7 @@ public class ShortBlue_3 extends OpMode {
         flywheelSubsystem.init();
         shooterSubsystem.init();
         feederSubsystem.init();
+        driveSubsystem.init();
         vision.init();
 
         buildPaths();

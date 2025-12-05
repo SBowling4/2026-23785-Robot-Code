@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 @Autonomous
-public class ShortBlue_6 extends OpMode {
+public class ShortRed_3 extends OpMode {
     private Follower follower;
     private Timer autoTimer, pathTimer;
 
@@ -31,43 +31,29 @@ public class ShortBlue_6 extends OpMode {
     Vision vision;
 
     public enum PathState {
-        DRIVE_START_POS_SHOOT_POS,
+        DRIVE_STARTPOS_SHOOTPOS,
         SHOOT_PRELOAD,
-        DRIVE_READY_PICKUP_POS,
-        PICKUP,
-        DRIVE_BACK_SHOOT_POS,
-        SHOOT_PICKUP,
+        DRIVE_SHOOT_READY_PICKUP,
         END
     }
 
     private PathState pathState;
 
-    private final Pose startPose = new Pose(20.101083032490973, 124.24548736462094, Math.toRadians(144));
-    private final Pose shootPose = new Pose(56.317689530685925, 87.33574007220216, Math.toRadians(144));
-    private final Pose readyPickupPose = new Pose(shootPose.getX(), shootPose.getY(), Math.toRadians(180));
-    private final Pose pickupPose = new Pose(14.382671480144404, 83.87003610108303, Math.toRadians(180));
+    private final Pose startPose = new Pose(128.4043321299639, 127.53790613718411, Math.toRadians(37));
+    private final Pose shootPose = new Pose(93.74729241877256, 93.74729241877256, Math.toRadians(48));
+    private final Pose readyPickupPose = new Pose(106.74368231046931, 83.69675090252709, 0);
 
-    private PathChain driveStartShoot, driveReadyPickup, drivePickup, drivePickupShoot;
+
+    private PathChain driveStartShoot, driveReadyPickup;
 
     public void buildPaths() {
         driveStartShoot = follower.pathBuilder()
                 .addPath(new BezierLine(startPose, shootPose))
                 .setLinearHeadingInterpolation(startPose.getHeading(), shootPose.getHeading())
                 .build();
-
         driveReadyPickup = follower.pathBuilder()
                 .addPath(new BezierLine(shootPose, readyPickupPose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), readyPickupPose.getHeading())
-                .build();
-
-        drivePickup = follower.pathBuilder()
-                .addPath(new BezierLine(readyPickupPose, pickupPose))
-                .setLinearHeadingInterpolation(readyPickupPose.getHeading(), pickupPose.getHeading())
-                .build();
-
-        drivePickupShoot = follower.pathBuilder()
-                .addPath(new BezierLine(pickupPose, shootPose))
-                .setLinearHeadingInterpolation(pickupPose.getHeading(), shootPose.getHeading())
                 .build();
     }
 
@@ -78,8 +64,8 @@ public class ShortBlue_6 extends OpMode {
 
     public void statePathUpdate() {
         switch (pathState) {
-            case DRIVE_START_POS_SHOOT_POS:
-                follower.followPath(driveStartShoot, true);
+            case DRIVE_STARTPOS_SHOOTPOS:
+                follower.followPath(driveStartShoot, false);
                 setPathState(PathState.SHOOT_PRELOAD);
                 break;
             case SHOOT_PRELOAD:
@@ -90,47 +76,17 @@ public class ShortBlue_6 extends OpMode {
 
                 if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 8) {
                     follower.followPath(driveReadyPickup);
-                    setPathState(PathState.DRIVE_READY_PICKUP_POS);
+                    setPathState(PathState.DRIVE_SHOOT_READY_PICKUP);
                 }
                 break;
-            case DRIVE_READY_PICKUP_POS:
+            case DRIVE_SHOOT_READY_PICKUP:
                 if (!follower.isBusy()) {
-                    follower.followPath(drivePickup);
-                    setPathState(PathState.PICKUP);
-                }
-            case PICKUP:
-                intakeSubsystem.intake();
-                feederSubsystem.feed();
-                flywheelSubsystem.setPower(1);
-
-                if (!follower.isBusy()) {
-                    follower.followPath(drivePickupShoot);
-                    setPathState(PathState.DRIVE_BACK_SHOOT_POS);
-                }
-            case DRIVE_BACK_SHOOT_POS:
-                intakeSubsystem.stop();
-                feederSubsystem.stop();
-                flywheelSubsystem.stop();
-
-                if (!follower.isBusy()) {
-                    setPathState(PathState.SHOOT_PICKUP);
-                }
-
-            case SHOOT_PICKUP:
-                if (!follower.isBusy()) {
-                    shooterSubsystem.shoot(false);
-                    feederSubsystem.autoFeed();
-                }
-
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 8) {
                     setPathState(PathState.END);
                 }
-                break;
             case END:
                 flywheelSubsystem.stop();
                 shooterSubsystem.setAngle(0);
                 feederSubsystem.stop();
-                intakeSubsystem.stop();
             default:
                 break;
         }
@@ -139,27 +95,30 @@ public class ShortBlue_6 extends OpMode {
 
     @Override
     public void init() {
-        Robot.alliance = Alliance.BLUE;
+        Robot.alliance = Alliance.RED;
+
+        Robot.sendHardwareMap(hardwareMap);
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
-        pathState = PathState.DRIVE_START_POS_SHOOT_POS;
+        pathState = PathState.DRIVE_STARTPOS_SHOOTPOS;
 
         pathTimer = new Timer();
         autoTimer = new Timer();
-
         follower = Constants.createFollower(hardwareMap);
 
-        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
-        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
-        feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
+        flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
+        shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
+        feederSubsystem = FeederSubsystem.getInstance(hardwareMap, gamepad1);
         vision = Vision.getInstance(hardwareMap);
 
+
+
+        intakeSubsystem.init();
         flywheelSubsystem.init();
         shooterSubsystem.init();
         feederSubsystem.init();
-        intakeSubsystem.init();
         vision.init();
 
         buildPaths();

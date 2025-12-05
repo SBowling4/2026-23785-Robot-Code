@@ -9,10 +9,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 
 public class FeederSubsystem {
     private MotorEx feederMotor;
     private FlywheelSubsystem flywheelSubsystem;
+    private ShooterSubsystem shooterSubsystem;
 
     private final HardwareMap hardwareMap;
     private final Gamepad gamepad1;
@@ -29,6 +31,7 @@ public class FeederSubsystem {
         feederMotor = new MotorEx(hardwareMap, FeederConstants.FEEDER_MOTOR_NAME);
 
         flywheelSubsystem = FlywheelSubsystem.getInstance();
+        shooterSubsystem = ShooterSubsystem.getInstance();
     }
 
     public void loop() {
@@ -52,7 +55,7 @@ public class FeederSubsystem {
     }
 
     public void autoFeed() {
-        if (flywheelSubsystem.atVelocity()) {
+        if (flywheelSubsystem.atVelocity() && shooterSubsystem.atPosition()) {
             feed();
         } else {
             stop();

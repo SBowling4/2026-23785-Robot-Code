@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-@TeleOp(name = "Kaos_Red", group = "Orion")
+@TeleOp(name = "Kaos_Blue", group = "Orion")
 public class Kaos_Red extends OpMode {
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;
@@ -54,6 +54,7 @@ public class Kaos_Red extends OpMode {
 
     @Override
     public void start() {
+        driveSubsystem.start();
         vision.start();
     }
 
@@ -92,6 +93,10 @@ public class Kaos_Red extends OpMode {
 
 
 
+        telemetry.addLine("//Odometry//");
+        telemetry.addData("X", driveSubsystem.getPose().getX());
+        telemetry.addData("Y", driveSubsystem.getPose().getY());
+        telemetry.addData("Heading", driveSubsystem.getPose().getHeading());
 
 
         telemetry.addLine("//Shooter//");
@@ -116,6 +121,8 @@ public class Kaos_Red extends OpMode {
         telemetry.addData("Tx", vision.getTx().orElse(-1.0));
         telemetry.addData("Ty", vision.getTy().orElse(-1.0));
         telemetry.addData("Distance", vision.getDistance().orElse(-1.0));
+        telemetry.addLine();
+
 
 
         telemetry.update();

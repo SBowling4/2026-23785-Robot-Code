@@ -30,7 +30,6 @@ public class Kaos_Blue extends OpMode {
     @Override
     public void init() {
         Robot.alliance = Alliance.BLUE;
-        Robot.isTele = true;
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 

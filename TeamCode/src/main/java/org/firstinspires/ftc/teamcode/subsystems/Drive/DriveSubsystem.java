@@ -26,7 +26,7 @@ public class DriveSubsystem {
 
     private static DriveSubsystem instance;
 
-    private Follower follower;
+    public Follower follower;
 
 
 
@@ -77,6 +77,7 @@ public class DriveSubsystem {
 
         if (gamepad1.x) {
             align();
+            return;
         }
 
         if (gamepad1.share) {
@@ -101,6 +102,7 @@ public class DriveSubsystem {
         double power = alignPID.calculate(tx, target);
 
         follower.setTeleOpDrive(0, 0, power);
+        follower.update();
     }
 
     public Pose getPose() {

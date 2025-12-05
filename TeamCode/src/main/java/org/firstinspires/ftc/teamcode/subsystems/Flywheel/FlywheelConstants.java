@@ -19,7 +19,7 @@ public class FlywheelConstants {
     public static double MID_VELOCITY = 275;
     public static double FAR_VELOCITY = 340;
 
-    public static double FAR_AUTO_VELOCITY = 360;
+    public static double FAR_AUTO_VELOCITY = 355;
 
 
 }
