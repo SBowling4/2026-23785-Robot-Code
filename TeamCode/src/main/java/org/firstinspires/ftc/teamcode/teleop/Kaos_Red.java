@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-@TeleOp(name = "Kaos_Blue", group = "Orion")
+@TeleOp(name = "Kaos_Red", group = "Orion")
 public class Kaos_Red extends OpMode {
     DriveSubsystem driveSubsystem;
     IntakeSubsystem intakeSubsystem;

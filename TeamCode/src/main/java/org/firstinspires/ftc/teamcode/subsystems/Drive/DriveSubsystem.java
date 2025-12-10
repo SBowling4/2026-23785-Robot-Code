@@ -65,6 +65,7 @@ public class DriveSubsystem {
 
     public void loop(){
         alignPID.setP(DriveConstants.kP);
+        alignPID.setD(DriveConstants.kD);
 
 
         follower.setTeleOpDrive(
@@ -91,13 +92,13 @@ public class DriveSubsystem {
 
     public void align() {
         if (vision.getTx().isEmpty()) {
-            mecanum.stop();
+            follower.setTeleOpDrive(0,0,0);
             return;
         }
 
         double tx = vision.getTx().get();
 
-        double target = 1;
+        double target = 0;
 
         double power = alignPID.calculate(tx, target);
 

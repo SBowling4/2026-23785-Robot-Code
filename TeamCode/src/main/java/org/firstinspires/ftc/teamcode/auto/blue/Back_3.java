@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.blue;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-@Autonomous(name = "BackAuto_Red")
-public class BackAuto_Red extends OpMode {
+@Autonomous(name = "Back_3_Blue")
+public class Back_3 extends OpMode {
 
     private DriveSubsystem driveSubsystem;
     private FlywheelSubsystem flywheelSubsystem;
@@ -29,7 +29,7 @@ public class BackAuto_Red extends OpMode {
 
     @Override
     public void init() {
-        Robot.alliance = Alliance.RED;
+        Robot.alliance = Alliance.BLUE;
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 

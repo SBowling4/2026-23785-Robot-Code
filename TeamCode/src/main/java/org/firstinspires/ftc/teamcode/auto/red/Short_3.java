@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.red;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -12,7 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.lib.pedropathing.Constants;
-import org.firstinspires.ftc.teamcode.subsystems.Drive.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Feeder.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Flywheel.FlywheelSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Intake.IntakeSubsystem;
@@ -20,8 +19,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-@Autonomous
-public class ShortBlue_3 extends OpMode {
+@Autonomous(name="Short_3_Red")
+public class Short_3 extends OpMode {
     private Follower follower;
     private Timer autoTimer, pathTimer;
 
@@ -29,7 +28,6 @@ public class ShortBlue_3 extends OpMode {
     FlywheelSubsystem flywheelSubsystem;
     FeederSubsystem feederSubsystem;
     IntakeSubsystem intakeSubsystem;
-    DriveSubsystem driveSubsystem;
     Vision vision;
 
     public enum PathState {
@@ -41,9 +39,9 @@ public class ShortBlue_3 extends OpMode {
 
     private PathState pathState;
 
-    private final Pose startPose = new Pose(20.101083032490973, 124.24548736462094, Math.toRadians(144));
-    private final Pose shootPose = new Pose(56.317689530685925, 87.33574007220216, Math.toRadians(144));
-    private final Pose readyPickupPose = new Pose(41.588447653429604, 84.21660649819495, Math.toRadians(180));
+    private final Pose startPose = new Pose(128.4043321299639, 127.53790613718411, Math.toRadians(37));
+    private final Pose shootPose = new Pose(93.74729241877256, 93.74729241877256, Math.toRadians(48));
+    private final Pose readyPickupPose = new Pose(106.74368231046931, 83.69675090252709, 0);
 
 
     private PathChain driveStartShoot, driveReadyPickup;
@@ -72,7 +70,6 @@ public class ShortBlue_3 extends OpMode {
                 break;
             case SHOOT_PRELOAD:
                 if (!follower.isBusy()) {
-//                    driveSubsystem.align();
                     shooterSubsystem.shoot(false);
                     feederSubsystem.autoFeed();
                 }
@@ -98,7 +95,7 @@ public class ShortBlue_3 extends OpMode {
 
     @Override
     public void init() {
-        Robot.alliance = Alliance.BLUE;
+        Robot.alliance = Alliance.RED;
 
         Robot.sendHardwareMap(hardwareMap);
 
@@ -110,8 +107,6 @@ public class ShortBlue_3 extends OpMode {
         autoTimer = new Timer();
         follower = Constants.createFollower(hardwareMap);
 
-
-        driveSubsystem = DriveSubsystem.getInstance(hardwareMap, gamepad1);
         intakeSubsystem = IntakeSubsystem.getInstance(hardwareMap, gamepad1);
         flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
         shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
@@ -124,7 +119,6 @@ public class ShortBlue_3 extends OpMode {
         flywheelSubsystem.init();
         shooterSubsystem.init();
         feederSubsystem.init();
-        driveSubsystem.init();
         vision.init();
 
         buildPaths();

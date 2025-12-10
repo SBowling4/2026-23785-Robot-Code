@@ -96,7 +96,7 @@ public class Kaos_Blue extends OpMode {
         telemetry.addLine("//Odometry//");
         telemetry.addData("X", driveSubsystem.getPose().getX());
         telemetry.addData("Y", driveSubsystem.getPose().getY());
-        telemetry.addData("Heading", driveSubsystem.getPose().getHeading());
+        telemetry.addData("Heading", Math.toDegrees(driveSubsystem.getPose().getHeading()));
 
 
         telemetry.addLine("//Shooter//");

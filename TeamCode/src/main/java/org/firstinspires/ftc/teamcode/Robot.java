@@ -68,7 +68,7 @@ public class Robot {
                 return vs.getVoltage();
             }
         } catch (NullPointerException npe) {
-            return -1;
+            throw new NullPointerException("Hardware map not sent to Robot");
         }
 
         return -1;

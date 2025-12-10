@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.blue;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -19,8 +20,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Shooter.ShooterSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Vision.Vision;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
-@Autonomous
-public class ShortBlue_6 extends OpMode {
+@Autonomous(name = "Short_6_Blue")
+public class Short_6 extends OpMode {
     private Follower follower;
     private Timer autoTimer, pathTimer;
 
@@ -37,17 +38,20 @@ public class ShortBlue_6 extends OpMode {
         PICKUP,
         DRIVE_BACK_SHOOT_POS,
         SHOOT_PICKUP,
+        DRIVE_OFFLINE,
         END
     }
 
     private PathState pathState;
 
-    private final Pose startPose = new Pose(20.101083032490973, 124.24548736462094, Math.toRadians(144));
-    private final Pose shootPose = new Pose(56.317689530685925, 87.33574007220216, Math.toRadians(144));
-    private final Pose readyPickupPose = new Pose(shootPose.getX(), shootPose.getY(), Math.toRadians(180));
+    private final Pose startPose = new Pose(17.67509025270758, 121.64620938628158, Math.toRadians(144));
+    private final Pose shootPose = new Pose(45.92057761732852, 102.23826714801444, Math.toRadians(144));
+    private final Pose pickupCP = new Pose(57.53068592057762, 86.29602888086643, Math.toRadians(180));
+    private final Pose readyPickupPose = new Pose(44.88086642599278, 83.35018050541515, Math.toRadians(180));
     private final Pose pickupPose = new Pose(14.382671480144404, 83.87003610108303, Math.toRadians(180));
+    private final Pose offlinePose = new Pose(28.76534296028881, 77.11191335740072, Math.toRadians(180));
 
-    private PathChain driveStartShoot, driveReadyPickup, drivePickup, drivePickupShoot;
+    private PathChain driveStartShoot, driveReadyPickup, drivePickup, drivePickupShoot, driveOffline;
 
     public void buildPaths() {
         driveStartShoot = follower.pathBuilder()
@@ -56,7 +60,7 @@ public class ShortBlue_6 extends OpMode {
                 .build();
 
         driveReadyPickup = follower.pathBuilder()
-                .addPath(new BezierLine(shootPose, readyPickupPose))
+                .addPath(new BezierCurve(shootPose, pickupCP, readyPickupPose))
                 .setLinearHeadingInterpolation(shootPose.getHeading(), readyPickupPose.getHeading())
                 .build();
 
@@ -68,6 +72,11 @@ public class ShortBlue_6 extends OpMode {
         drivePickupShoot = follower.pathBuilder()
                 .addPath(new BezierLine(pickupPose, shootPose))
                 .setLinearHeadingInterpolation(pickupPose.getHeading(), shootPose.getHeading())
+                .build();
+
+        driveOffline = follower.pathBuilder()
+                .addPath(new BezierLine(shootPose, offlinePose))
+                .setLinearHeadingInterpolation(shootPose.getHeading(), offlinePose.getHeading())
                 .build();
     }
 
@@ -86,51 +95,75 @@ public class ShortBlue_6 extends OpMode {
                 if (!follower.isBusy()) {
                     shooterSubsystem.shoot(false);
                     feederSubsystem.autoFeed();
+                    intakeSubsystem.intake();
                 }
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 8) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5) {
+                    flywheelSubsystem.stop();
+                    feederSubsystem.stop();
+                    intakeSubsystem.stop();
+
                     follower.followPath(driveReadyPickup);
                     setPathState(PathState.DRIVE_READY_PICKUP_POS);
                 }
                 break;
             case DRIVE_READY_PICKUP_POS:
                 if (!follower.isBusy()) {
-                    follower.followPath(drivePickup);
+                    follower.followPath(drivePickup, .5, true);
                     setPathState(PathState.PICKUP);
                 }
+                break;
             case PICKUP:
-                intakeSubsystem.intake();
-                feederSubsystem.feed();
-                flywheelSubsystem.setPower(1);
+                if (pathTimer.getElapsedTimeSeconds() < 1.67) {
+                    intakeSubsystem.intake();
+                    feederSubsystem.feed();
+                    flywheelSubsystem.setPower(1);
+                } else {
+                    intakeSubsystem.stop();
+                    feederSubsystem.stop();
+                    flywheelSubsystem.stop();
+                }
 
-                if (!follower.isBusy()) {
+
+
+
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 1.67) {
                     follower.followPath(drivePickupShoot);
                     setPathState(PathState.DRIVE_BACK_SHOOT_POS);
                 }
+                break;
             case DRIVE_BACK_SHOOT_POS:
                 intakeSubsystem.stop();
                 feederSubsystem.stop();
                 flywheelSubsystem.stop();
 
+
+
                 if (!follower.isBusy()) {
                     setPathState(PathState.SHOOT_PICKUP);
                 }
+                break;
 
             case SHOOT_PICKUP:
                 if (!follower.isBusy()) {
                     shooterSubsystem.shoot(false);
                     feederSubsystem.autoFeed();
+                    intakeSubsystem.intake();
                 }
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 8) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5) {
+                    follower.followPath(driveOffline);
+                    setPathState(PathState.DRIVE_OFFLINE);
+                }
+                break;
+            case DRIVE_OFFLINE:
+                if (!follower.isBusy()) {
                     setPathState(PathState.END);
                 }
                 break;
             case END:
-                flywheelSubsystem.stop();
-                shooterSubsystem.setAngle(0);
-                feederSubsystem.stop();
-                intakeSubsystem.stop();
+                terminateOpModeNow();
+                break;
             default:
                 break;
         }
@@ -140,6 +173,7 @@ public class ShortBlue_6 extends OpMode {
     @Override
     public void init() {
         Robot.alliance = Alliance.BLUE;
+        Robot.sendHardwareMap(hardwareMap);
 
         telemetry = new MultipleTelemetry(telemetry, PanelsTelemetry.INSTANCE.getFtcTelemetry());
 
@@ -149,6 +183,7 @@ public class ShortBlue_6 extends OpMode {
         autoTimer = new Timer();
 
         follower = Constants.createFollower(hardwareMap);
+
 
         shooterSubsystem = ShooterSubsystem.getInstance(hardwareMap, gamepad1, gamepad2);
         flywheelSubsystem = FlywheelSubsystem.getInstance(hardwareMap, gamepad1);
