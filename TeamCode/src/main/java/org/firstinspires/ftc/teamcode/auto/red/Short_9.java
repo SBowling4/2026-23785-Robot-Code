@@ -52,10 +52,10 @@ public class Short_9 extends OpMode {
     private final Pose shootPose = new Pose(45.92057761732852, 102.23826714801444, Math.toRadians(144)).mirror();
     private final Pose firstPickupCP = new Pose(57.53068592057762, 86.29602888086643, Math.toRadians(180)).mirror();
     private final Pose readyFirstPickupPose = new Pose(44.88086642599278, 83.35018050541515, Math.toRadians(180)).mirror();
-    private final Pose firstPickupPose = new Pose(14.382671480144404, 83.87003610108303, Math.toRadians(180)).mirror();
-    private final Pose readySecondPickupPose = new Pose(41.761732851985556, 59.43682310469315, Math.toRadians(180)).mirror();
+    private final Pose firstPickupPose = new Pose(16.11552346570397, 84.04332129963899, Math.toRadians(180)).mirror();
     private final Pose secondPickupCP = new Pose(57.357400722021666, 69.48736462093864, Math.toRadians(180)).mirror();
-    private final Pose secondPickupPose = new Pose(22.0072202166065, 60.64981949458484, Math.toRadians(180)).mirror();
+    private final Pose readySecondPickupPose = new Pose(41.761732851985556, 59.610108303249106, Math.toRadians(180)).mirror();
+    private final Pose secondPickupPose = new Pose(19.407942238267147, 59.610108303249106, Math.toRadians(180)).mirror();
     private final Pose offlinePose = new Pose(28.76534296028881, 77.11191335740072, Math.toRadians(180)).mirror();
 
     private PathChain driveStartShoot, driveReadyFirstPickup, driveFirstPickup, driveFirstPickupShoot, driveReadySecondPickup, driveSecondPickup, driveSecondPickupShoot, driveOffline;
@@ -120,7 +120,7 @@ public class Short_9 extends OpMode {
                     intakeSubsystem.intake();
                 }
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 6) {
                     flywheelSubsystem.stop();
                     feederSubsystem.stop();
                     intakeSubsystem.stop();
@@ -131,37 +131,27 @@ public class Short_9 extends OpMode {
                 break;
             case DRIVE_READY_FIRST_PICKUP_POS:
                 if (!follower.isBusy()) {
-                    follower.followPath(driveFirstPickup, .5, true);
                     setPathState(PathState.FIRST_PICKUP);
+                    follower.followPath(driveFirstPickup, .5, true);
                 }
                 break;
             case FIRST_PICKUP:
-                if (pathTimer.getElapsedTimeSeconds() < 1.75) {
+                if (pathTimer.getElapsedTimeSeconds() < 1.67) {
                     intakeSubsystem.intake();
                     feederSubsystem.feed();
                     flywheelSubsystem.setPower(1);
-                }
-
-                if (pathTimer.getElapsedTimeSeconds() > 1.75 && pathTimer.getElapsedTimeSeconds() < 2) {
+                } else {
                     intakeSubsystem.stop();
                     feederSubsystem.stop();
                     flywheelSubsystem.stop();
                 }
 
 
-                if (!follower.isBusy() & pathTimer.getElapsedTimeSeconds() < 2.5) {
-                    intakeSubsystem.intake();
-                    flywheelSubsystem.setPower(1);
-                    feederSubsystem.back();
-                }
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 1.67) {
+                    intakeSubsystem.stop();
+                    feederSubsystem.stop();
+                    flywheelSubsystem.stop();
 
-                if (!follower.isBusy() & pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.75) {
-                    intakeSubsystem.intake();
-                    flywheelSubsystem.setPower(1);
-                    feederSubsystem.feed();
-                }
-
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2.5) {
                     follower.followPath(driveFirstPickupShoot);
                     setPathState(PathState.DRIVE_BACK_FIRST_SHOOT_POS);
                 }
@@ -185,7 +175,7 @@ public class Short_9 extends OpMode {
                     intakeSubsystem.intake();
                 }
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 6) {
                     follower.followPath(driveReadySecondPickup);
                     setPathState(PathState.DRIVE_READY_SECOND_PICKUP);
                 }
@@ -196,41 +186,25 @@ public class Short_9 extends OpMode {
                 feederSubsystem.stop();
 
                 if (!follower.isBusy()) {
-                    follower.followPath(driveSecondPickup, .5, true);
+                    follower.followPath(driveSecondPickup, .4, true);
                     setPathState(PathState.SECOND_PICKUP);
                 }
                 break;
             case SECOND_PICKUP:
-                if (pathTimer.getElapsedTimeSeconds() < 1.67) {
+                if (pathTimer.getElapsedTimeSeconds() < 1.5) {
                     intakeSubsystem.intake();
                     feederSubsystem.feed();
                     flywheelSubsystem.setPower(1);
-                }
-
-                if (pathTimer.getElapsedTimeSeconds() > 1.67 && pathTimer.getElapsedTimeSeconds() < 2) {
+                } else {
                     intakeSubsystem.stop();
                     feederSubsystem.stop();
                     flywheelSubsystem.stop();
                 }
 
 
-//                if (!follower.isBusy() & pathTimer.getElapsedTimeSeconds() < 2.5) {
-//                    intakeSubsystem.intake();
-//                    flywheelSubsystem.setPower(1);
-//                    feederSubsystem.back();
-//                }
 
-//                if (!follower.isBusy() & pathTimer.getElapsedTimeSeconds() > 2.5 && pathTimer.getElapsedTimeSeconds() < 2.75) {
-//                    intakeSubsystem.intake();
-//                    flywheelSubsystem.setPower(1);
-//                    feederSubsystem.feed();
-//                }
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2.5) {
-                    feederSubsystem.stop();
-                    intakeSubsystem.stop();
-                    flywheelSubsystem.stop();
-
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 1.5) {
                     follower.followPath(driveSecondPickupShoot);
                     setPathState(PathState.DRIVE_BACK_SECOND_PICKUP);
                 }
@@ -251,7 +225,7 @@ public class Short_9 extends OpMode {
                     intakeSubsystem.intake();
                 }
 
-                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 5) {
+                if (!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 6) {
                     follower.followPath(driveOffline);
                     setPathState(PathState.DRIVE_OFFLINE);
                 }
